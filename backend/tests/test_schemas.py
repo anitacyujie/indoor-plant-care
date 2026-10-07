@@ -44,3 +44,10 @@ def test_watering_interval_must_be_positive(guide):
     guide["watering"]["interval_days"]["spring_summer"] = 0
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize("bad_value", [0, -1])
+def test_watering_interval_must_be_positive_2(guide, bad_value):
+    guide["watering"]["interval_days"]["spring_summer"] = bad_value
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)

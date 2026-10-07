@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import Literal
 
 
+class Names(BaseModel):
+    zh: str
+    en: str
+
+
+class SeasonalInterval(BaseModel):
+    spring_summer: int = Field(gt=0)
+    fall_winter: int = Field(gt=0)
+
 class LuxRange(BaseModel):
     min: int = Field(ge=0)
     max: int | None = None
@@ -14,18 +23,7 @@ class Light(BaseModel):
     minimum_lux: int = Field(ge=0)
     lux_basis: Literal["stated_by_source", "converted_from_label"]
     notes: str = ""
-
-
-class Names(BaseModel):
-    zh: str
-    en: str
-
-
-class SeasonalInterval(BaseModel):
-    spring_summer: int = Field(gt=0)
-    fall_winter: int = Field(gt=0)
-
-
+    
 class Watering(BaseModel):
     interval_days: SeasonalInterval
     how_to_check: str

@@ -73,4 +73,5 @@ Each entry should be specific down to the cultivar (e.g., variegated varieties n
 
 - Dev environment ready: Python 3.13, Git, VS Code, Claude Code.
 - Repo cloned with README, Python .gitignore, MIT license.
-- Next: create `backend/` with a virtual environment, install FastAPI, add a `/health` endpoint, and make the first commit.
+- FastAPI backend running with /health endpoint, first commit pushed.
+- Next: plant library — finalize the schema and pick the first batch of plants.
