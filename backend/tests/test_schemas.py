@@ -77,9 +77,11 @@ def test_ppfd_max_equal_to_min_accepted(guide):
     PlantCareGuide.model_validate(guide)
 
 
-@pytest.mark.parametrize("ppfd_range", PPFD_RANGES)
-def test_ppfd_max_is_required(guide, ppfd_range):
-    del guide["light"][ppfd_range]["max"]
+# Drop max from both ranges: if max ever got a default, both would get the same
+# one, so ideal-within-tolerable could not reject the case instead.
+def test_ppfd_max_is_required(guide):
+    del guide["light"]["ideal_ppfd"]["max"]
+    del guide["light"]["tolerable_ppfd"]["max"]
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
 
