@@ -29,7 +29,7 @@ Each step ends in a working, demoable state.
 
 1. **Core features**: plant library (JSON), backend API (list plants, add my plant, log watering, compute who needs water today), simple frontend, SQLite storage. Build the backend first, then the frontend.
 2. **Tests**: pytest unit and API tests; Playwright E2E for "add a plant → log watering → reminder list updates".
-3. **Docker**: containerize frontend, backend, and database; start everything with docker-compose.
+3. **Docker**: containerize frontend, backend, and database; start everything with docker-compose. Then run mutation testing (mutmut) inside the backend container; see `docs/ideas.md`.
 4. **CI/CD and deployment**: GitHub Actions runs tests on every push and deploys on success to a public URL. Then add PWA push reminders (need HTTPS).
 5. **Monitoring**: expose the four golden signals from the backend; Prometheus + Grafana dashboards; one or two alerts.
 6. **Failure drill and docs**: intentionally break something (e.g., stop the database), verify alerts and dashboards, write an RCA and a runbook; finish README and architecture diagram.
