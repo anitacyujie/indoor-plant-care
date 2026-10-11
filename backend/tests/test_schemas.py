@@ -3,7 +3,7 @@ import copy
 import pytest
 from pydantic import ValidationError
 
-from app.schemas import MAX_PPFD, PlantCareGuide, Source
+from app.schemas import MAX_PPFD, MAX_WINDOW_DISTANCE_M, PlantCareGuide, Source
 
 VALID_GUIDE = {
     "id": "monstera-deliciosa-albo",
@@ -15,6 +15,10 @@ VALID_GUIDE = {
         "ideal_ppfd": {"min": 150, "max": 250},
         "tolerable_ppfd": {"min": 100, "max": 400},
         "ppfd_basis": "converted_from_label",
+        "placement": [
+            {"window": "gentle", "distance_m": {"min": 0, "max": 1}},
+            {"window": "strong", "distance_m": {"min": 0.6, "max": 1.2}},
+        ],
         "source_ids": ["example"],
     },
     "watering": {
@@ -184,3 +188,48 @@ def test_source_id_must_be_slug():
         Source.model_validate(
             {"id": "Not A Slug", "title": "Example", "url": "https://example.com"}
         )
+
+
+def test_placement_is_required(guide):
+    guide["light"]["placement"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_placement_rejects_unknown_window(guide):
+    guide["light"]["placement"][0]["window"] = "partial"
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_placement_rejects_duplicate_window(guide):
+    guide["light"]["placement"][1]["window"] = "gentle"
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_distance_max_below_min_rejected(guide):
+    guide["light"]["placement"][0]["distance_m"] = {"min": 1.2, "max": 0.6}
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize(
+    "bad_distance",
+    [
+        {"min": -0.1, "max": 1},
+        {"min": 0.6, "max": MAX_WINDOW_DISTANCE_M + 0.1},
+    ],
+)
+def test_distance_rejects_out_of_range(guide, bad_distance):
+    guide["light"]["placement"][0]["distance_m"] = bad_distance
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_distance_accepts_full_range_boundaries(guide):
+    guide["light"]["placement"][0]["distance_m"] = {
+        "min": 0,
+        "max": MAX_WINDOW_DISTANCE_M,
+    }
+    PlantCareGuide.model_validate(guide)

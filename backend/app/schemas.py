@@ -39,23 +39,6 @@ class PpfdRange(BaseModel):
         return self
 
 
-class Light(BaseModel):
-    ideal_ppfd: PpfdRange
-    tolerable_ppfd: PpfdRange
-    ppfd_basis: Literal["stated_by_source", "converted_from_label"]
-    notes: str = ""
-    source_ids: SourceIds
-
-    @model_validator(mode="after")
-    def check_ideal_within_tolerable(self) -> Self:
-        if (
-            self.ideal_ppfd.min < self.tolerable_ppfd.min
-            or self.ideal_ppfd.max > self.tolerable_ppfd.max
-        ):
-            raise ValueError("ideal_ppfd must fall within tolerable_ppfd")
-        return self
-
-
 WindowExposureId = Literal["strong", "gentle", "none"]
 
 Direction = Literal["north", "east", "south", "west"]
@@ -68,6 +51,55 @@ class WindowExposure(BaseModel):
     names: LocalizedText
     how_to_tell: LocalizedText
     typical_northern_hemisphere: list[Direction] = Field(min_length=1)
+
+
+# Shade-tolerant plants can sit up to ~20 ft (6 m) from a bright window;
+# anything farther is almost certainly a data error.
+MAX_WINDOW_DISTANCE_M = 6.0
+
+WindowDistance = Annotated[float, Field(ge=0, le=MAX_WINDOW_DISTANCE_M)]
+
+
+class DistanceRange(BaseModel):
+    min: WindowDistance
+    max: WindowDistance
+
+    @model_validator(mode="after")
+    def check_max_not_below_min(self) -> Self:
+        if self.max < self.min:
+            raise ValueError("max must be greater than or equal to min")
+        return self
+
+
+class Placement(BaseModel):
+    window: WindowExposureId
+    distance_m: DistanceRange
+    notes: str = ""
+
+
+class Light(BaseModel):
+    ideal_ppfd: PpfdRange
+    tolerable_ppfd: PpfdRange
+    ppfd_basis: Literal["stated_by_source", "converted_from_label"]
+    placement: list[Placement] = Field(min_length=1)
+    notes: str = ""
+    source_ids: SourceIds
+
+    @model_validator(mode="after")
+    def check_ideal_within_tolerable(self) -> Self:
+        if (
+            self.ideal_ppfd.min < self.tolerable_ppfd.min
+            or self.ideal_ppfd.max > self.tolerable_ppfd.max
+        ):
+            raise ValueError("ideal_ppfd must fall within tolerable_ppfd")
+        return self
+
+    @model_validator(mode="after")
+    def check_windows_unique(self) -> Self:
+        windows = [p.window for p in self.placement]
+        if len(windows) != len(set(windows)):
+            raise ValueError("each window exposure may appear only once")
+        return self
 
 
 class Watering(BaseModel):
