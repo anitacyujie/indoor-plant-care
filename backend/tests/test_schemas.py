@@ -46,8 +46,51 @@ def test_watering_interval_must_be_positive(guide):
         PlantCareGuide.model_validate(guide)
 
 
-@pytest.mark.parametrize("bad_value", [0, -1])
-def test_watering_interval_must_be_positive_2(guide, bad_value):
-    guide["watering"]["interval_days"]["spring_summer"] = bad_value
+def set_field(data, path, value):
+    *parents, last = path
+    for key in parents:
+        data = data[key]
+    data[last] = value
+
+
+REQUIRED_TEXT_FIELDS = [
+    ("names", "zh"),
+    ("names", "en"),
+    ("scientific_name",),
+    ("watering", "how_to_check"),
+    ("soil", "mix", 0, "component"),
+    ("fertilizer", "npk_ratio"),
+    ("fertilizer", "dilution"),
+    ("sources", 0, "title"),
+]
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+@pytest.mark.parametrize("path", REQUIRED_TEXT_FIELDS)
+def test_required_text_rejects_blank(guide, path, blank):
+    set_field(guide, path, blank)
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
+
+
+def test_sources_must_not_be_empty(guide):
+    guide["sources"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize(
+    "bad_url", ["not-a-url", "", "example.com", "ftp://example.com"]
+)
+def test_source_url_rejects_invalid(guide, bad_url):
+    guide["sources"][0]["url"] = bad_url
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize(
+    "good_url", ["https://example.com", "http://example.com/page?id=1"]
+)
+def test_source_url_accepts_valid(guide, good_url):
+    guide["sources"][0]["url"] = good_url
+    PlantCareGuide.model_validate(guide)

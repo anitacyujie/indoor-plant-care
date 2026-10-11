@@ -1,12 +1,13 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, HttpUrl
-from typing import Literal
+from pydantic import BaseModel, Field, HttpUrl, StringConstraints
+
+NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class Names(BaseModel):
-    zh: str
-    en: str
+    zh: NonEmptyStr
+    en: NonEmptyStr
 
 
 class SeasonalInterval(BaseModel):
@@ -26,11 +27,11 @@ class Light(BaseModel):
     
 class Watering(BaseModel):
     interval_days: SeasonalInterval
-    how_to_check: str
+    how_to_check: NonEmptyStr
 
 
 class SoilComponent(BaseModel):
-    component: str
+    component: NonEmptyStr
     parts: int = Field(gt=0)
 
 
@@ -43,22 +44,22 @@ Month = Annotated[int, Field(ge=1, le=12)]
 
 
 class Fertilizer(BaseModel):
-    npk_ratio: str
-    dilution: str
+    npk_ratio: NonEmptyStr
+    dilution: NonEmptyStr
     frequency_days: int = Field(gt=0)
     pause_months: list[Month] = []
     notes: str = ""
 
 
 class Source(BaseModel):
-    title: str
+    title: NonEmptyStr
     url: HttpUrl
 
 
 class PlantCareGuide(BaseModel):
     id: str = Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")
     names: Names
-    scientific_name: str
+    scientific_name: NonEmptyStr
     cultivar: str | None = None
     variegated: bool
     light: Light
