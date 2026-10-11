@@ -15,15 +15,16 @@ class SeasonalInterval(BaseModel):
     fall_winter: int = Field(gt=0)
 
 
-# Peak direct sunlight at ground level; no plant needs more than this.
-MAX_LUX = 100_000
+# PPFD (µmol/m²/s): photosynthetically active photons reaching the leaf.
+# Clear midsummer noon sun peaks near this; no plant needs more.
+MAX_PPFD = 2_000
 
-Lux = Annotated[int, Field(ge=0, le=MAX_LUX)]
+Ppfd = Annotated[int, Field(ge=0, le=MAX_PPFD)]
 
 
-class LuxRange(BaseModel):
-    min: Lux
-    max: Lux
+class PpfdRange(BaseModel):
+    min: Ppfd
+    max: Ppfd
 
     @model_validator(mode="after")
     def check_max_not_below_min(self) -> Self:
@@ -33,18 +34,18 @@ class LuxRange(BaseModel):
 
 
 class Light(BaseModel):
-    ideal_lux: LuxRange
-    tolerable_lux: LuxRange
-    lux_basis: Literal["stated_by_source", "converted_from_label"]
+    ideal_ppfd: PpfdRange
+    tolerable_ppfd: PpfdRange
+    ppfd_basis: Literal["stated_by_source", "converted_from_label"]
     notes: str = ""
 
     @model_validator(mode="after")
     def check_ideal_within_tolerable(self) -> Self:
         if (
-            self.ideal_lux.min < self.tolerable_lux.min
-            or self.ideal_lux.max > self.tolerable_lux.max
+            self.ideal_ppfd.min < self.tolerable_ppfd.min
+            or self.ideal_ppfd.max > self.tolerable_ppfd.max
         ):
-            raise ValueError("ideal_lux must fall within tolerable_lux")
+            raise ValueError("ideal_ppfd must fall within tolerable_ppfd")
         return self
 
 

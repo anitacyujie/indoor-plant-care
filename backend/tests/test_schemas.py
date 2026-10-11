@@ -3,7 +3,7 @@ import copy
 import pytest
 from pydantic import ValidationError
 
-from app.schemas import MAX_LUX, PlantCareGuide
+from app.schemas import MAX_PPFD, PlantCareGuide
 
 VALID_GUIDE = {
     "id": "monstera-deliciosa-albo",
@@ -12,9 +12,9 @@ VALID_GUIDE = {
     "cultivar": "Albo Borsigiana",
     "variegated": True,
     "light": {
-        "ideal_lux": {"min": 10000, "max": 20000},
-        "tolerable_lux": {"min": 5000, "max": 30000},
-        "lux_basis": "converted_from_label",
+        "ideal_ppfd": {"min": 150, "max": 250},
+        "tolerable_ppfd": {"min": 100, "max": 400},
+        "ppfd_basis": "converted_from_label",
     },
     "watering": {
         "interval_days": {"spring_summer": 7, "fall_winter": 14},
@@ -96,59 +96,60 @@ def test_source_url_accepts_valid(guide, good_url):
     PlantCareGuide.model_validate(guide)
 
 
-LUX_RANGES = ["ideal_lux", "tolerable_lux"]
+PPFD_RANGES = ["ideal_ppfd", "tolerable_ppfd"]
 
 
-@pytest.mark.parametrize("lux_range", LUX_RANGES)
-def test_lux_max_below_min_rejected(guide, lux_range):
-    guide["light"][lux_range] = {"min": 20000, "max": 10000}
+@pytest.mark.parametrize("ppfd_range", PPFD_RANGES)
+def test_ppfd_max_below_min_rejected(guide, ppfd_range):
+    guide["light"][ppfd_range] = {"min": 250, "max": 150}
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
 
 
-def test_lux_max_equal_to_min_accepted(guide):
-    guide["light"]["ideal_lux"] = {"min": 10000, "max": 10000}
-    guide["light"]["tolerable_lux"] = {"min": 10000, "max": 10000}
+def test_ppfd_max_equal_to_min_accepted(guide):
+    guide["light"]["ideal_ppfd"] = {"min": 200, "max": 200}
+    guide["light"]["tolerable_ppfd"] = {"min": 200, "max": 200}
     PlantCareGuide.model_validate(guide)
 
 
-@pytest.mark.parametrize("lux_range", LUX_RANGES)
-def test_lux_max_is_required(guide, lux_range):
-    del guide["light"][lux_range]["max"]
+@pytest.mark.parametrize("ppfd_range", PPFD_RANGES)
+def test_ppfd_max_is_required(guide, ppfd_range):
+    del guide["light"][ppfd_range]["max"]
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
 
 
-# Each bad range breaks only the 0..MAX_LUX bound, never the max >= min rule.
+# Each bad range breaks only the 0..MAX_PPFD bound. Both ranges get the same
+# value so neither max >= min nor ideal-within-tolerable can reject it instead.
 @pytest.mark.parametrize(
     "bad_range",
     [
-        {"min": -1, "max": 20000},
-        {"min": 10000, "max": MAX_LUX + 1},
+        {"min": -1, "max": 250},
+        {"min": 150, "max": MAX_PPFD + 1},
     ],
 )
-@pytest.mark.parametrize("lux_range", LUX_RANGES)
-def test_lux_rejects_out_of_range(guide, lux_range, bad_range):
-    guide["light"][lux_range] = bad_range
+def test_ppfd_rejects_out_of_range(guide, bad_range):
+    guide["light"]["ideal_ppfd"] = bad_range
+    guide["light"]["tolerable_ppfd"] = bad_range
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
 
 
-def test_lux_accepts_full_range_boundaries(guide):
-    guide["light"]["ideal_lux"] = {"min": 0, "max": MAX_LUX}
-    guide["light"]["tolerable_lux"] = {"min": 0, "max": MAX_LUX}
+def test_ppfd_accepts_full_range_boundaries(guide):
+    guide["light"]["ideal_ppfd"] = {"min": 0, "max": MAX_PPFD}
+    guide["light"]["tolerable_ppfd"] = {"min": 0, "max": MAX_PPFD}
     PlantCareGuide.model_validate(guide)
 
 
-# Fixture tolerable_lux is 5000..30000; each ideal range is valid on its own.
+# Fixture tolerable_ppfd is 100..400; each ideal range is valid on its own.
 @pytest.mark.parametrize(
     "ideal",
     [
-        {"min": 4000, "max": 20000},
-        {"min": 10000, "max": 31000},
+        {"min": 90, "max": 250},
+        {"min": 150, "max": 410},
     ],
 )
-def test_ideal_lux_outside_tolerable_rejected(guide, ideal):
-    guide["light"]["ideal_lux"] = ideal
+def test_ideal_ppfd_outside_tolerable_rejected(guide, ideal):
+    guide["light"]["ideal_ppfd"] = ideal
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
