@@ -38,40 +38,26 @@ Each step ends in a working, demoable state.
 
 The library is generated once by a script that searches the web, merges what it finds, and records sources. The app reads the generated JSON at runtime and makes no AI calls. Live generation for plants missing from the library may come later as an extension.
 
-Each entry should be specific down to the cultivar (e.g., variegated varieties need different fertilizing than plain green ones). Draft schema:
+Each entry should be specific down to the cultivar (e.g., variegated varieties need different fertilizing than plain green ones).
 
-```json
-{
-  "id": "monstera-deliciosa-thai-constellation",
-  "names": { "zh": "泰国星座龟背竹", "en": "Thai Constellation Monstera" },
-  "scientific_name": "Monstera deliciosa",
-  "cultivar": "Thai Constellation",
-  "variegated": true,
-  "light": { "level": "bright_indirect", "notes": "..." },
-  "watering": {
-    "interval_days": { "spring_summer": 7, "fall_winter": 14 },
-    "how_to_check": "..."
-  },
-  "soil": {
-    "mix": [{ "component": "...", "parts": 2 }],
-    "notes": "..."
-  },
-  "fertilizer": {
-    "npk_ratio": "...",
-    "dilution": "...",
-    "frequency_days": 30,
-    "pause_months": [11, 12, 1, 2],
-    "notes": "..."
-  },
-  "consensus": ["points most sources agree on"],
-  "disputed": ["points where sources disagree"],
-  "sources": [{ "title": "...", "url": "..." }]
-}
-```
+- Schema: `backend/app/schemas.py`. Reference entry: `backend/data/plants/monstera-deliciosa.json` (one file per plant, file name = `id`).
+- Shared reference data (stored once, plants refer to it by id): `backend/data/window_exposures.json`, `backend/data/watering_checks.json`.
+- Key design decisions:
+  - Light in PPFD (µmol/m²/s), not lux: `ideal_ppfd` must fall within `tolerable_ppfd`, capped at 2,000 (midsummer noon sun).
+  - Window placement uses exposure levels (strong / gentle / none) users can observe, not compass directions, so it works in both hemispheres.
+  - Seasons (`spring_summer` / `fall_winter`) instead of months, for the same reason.
+  - Every care section cites sources by `source_ids`; cited ids must exist in `sources`.
+  - Soil has one mix per watering style (top / bottom).
+  - All models reject unknown fields (`StrictModel`, `extra="forbid"`).
+- Data rules: read every source in full before citing it; never cite a claim seen only in a search summary. Store facts and our own wording, never copied text. Record disagreements in `disputed`.
+- Deferred ideas: `docs/ideas.md`.
 
 ## Current status
 
 - Dev environment ready: Python 3.13, Git, VS Code, Claude Code.
 - Repo cloned with README, Python .gitignore, MIT license.
 - FastAPI backend running with /health endpoint, first commit pushed.
-- Next: plant library — finalize the schema and pick the first batch of plants.
+- Plant library schema done, with tests; every test verified by mutation testing (break the code, confirm the test fails).
+- First plant entry: Monstera deliciosa (plain green).
+- API: `GET /plants`, `GET /plants/{plant_id}`; the library loads and validates at startup.
+- Next: user data in SQLite — add my plant, log watering, compute who needs water today. Then a simple frontend.
