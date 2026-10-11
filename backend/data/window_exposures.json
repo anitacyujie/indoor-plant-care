@@ -5,8 +5,7 @@
     "how_to_tell": {
       "zh": "一天中大部分时间都有阳光直射进屋",
       "en": "Direct sun shines in for most of the day"
-    },
-    "typical_northern_hemisphere": ["south", "west"]
+    }
   },
   {
     "id": "gentle",
@@ -14,8 +13,7 @@
     "how_to_tell": {
       "zh": "只有上午有阳光直射进屋",
       "en": "Direct sun shines in only in the morning"
-    },
-    "typical_northern_hemisphere": ["east"]
+    }
   },
   {
     "id": "none",
@@ -23,7 +21,6 @@
     "how_to_tell": {
       "zh": "全天都没有阳光直射进屋，只有散射光",
       "en": "No direct sun at any time, only indirect light"
-    },
-    "typical_northern_hemisphere": ["north"]
+    }
   }
 ]

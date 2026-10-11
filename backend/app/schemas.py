@@ -41,8 +41,6 @@ class PpfdRange(BaseModel):
 
 WindowExposureId = Literal["strong", "gentle", "none"]
 
-Direction = Literal["north", "east", "south", "west"]
-
 
 class WindowExposure(BaseModel):
     """How much direct sun a window gets; shared by all plants."""
@@ -50,7 +48,6 @@ class WindowExposure(BaseModel):
     id: WindowExposureId
     names: LocalizedText
     how_to_tell: LocalizedText
-    typical_northern_hemisphere: list[Direction] = Field(min_length=1)
 
 
 # Shade-tolerant plants can sit up to ~20 ft (6 m) from a bright window;
