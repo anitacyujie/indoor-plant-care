@@ -106,9 +106,9 @@ def test_lux_max_below_min_rejected(guide, lux_range):
         PlantCareGuide.model_validate(guide)
 
 
-@pytest.mark.parametrize("lux_range", LUX_RANGES)
-def test_lux_max_equal_to_min_accepted(guide, lux_range):
-    guide["light"][lux_range] = {"min": 10000, "max": 10000}
+def test_lux_max_equal_to_min_accepted(guide):
+    guide["light"]["ideal_lux"] = {"min": 10000, "max": 10000}
+    guide["light"]["tolerable_lux"] = {"min": 10000, "max": 10000}
     PlantCareGuide.model_validate(guide)
 
 
@@ -134,7 +134,21 @@ def test_lux_rejects_out_of_range(guide, lux_range, bad_range):
         PlantCareGuide.model_validate(guide)
 
 
-@pytest.mark.parametrize("lux_range", LUX_RANGES)
-def test_lux_accepts_full_range_boundaries(guide, lux_range):
-    guide["light"][lux_range] = {"min": 0, "max": MAX_LUX}
+def test_lux_accepts_full_range_boundaries(guide):
+    guide["light"]["ideal_lux"] = {"min": 0, "max": MAX_LUX}
+    guide["light"]["tolerable_lux"] = {"min": 0, "max": MAX_LUX}
     PlantCareGuide.model_validate(guide)
+
+
+# Fixture tolerable_lux is 5000..30000; each ideal range is valid on its own.
+@pytest.mark.parametrize(
+    "ideal",
+    [
+        {"min": 4000, "max": 20000},
+        {"min": 10000, "max": 31000},
+    ],
+)
+def test_ideal_lux_outside_tolerable_rejected(guide, ideal):
+    guide["light"]["ideal_lux"] = ideal
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)

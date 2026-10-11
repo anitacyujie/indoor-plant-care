@@ -37,7 +37,17 @@ class Light(BaseModel):
     tolerable_lux: LuxRange
     lux_basis: Literal["stated_by_source", "converted_from_label"]
     notes: str = ""
-    
+
+    @model_validator(mode="after")
+    def check_ideal_within_tolerable(self) -> Self:
+        if (
+            self.ideal_lux.min < self.tolerable_lux.min
+            or self.ideal_lux.max > self.tolerable_lux.max
+        ):
+            raise ValueError("ideal_lux must fall within tolerable_lux")
+        return self
+
+
 class Watering(BaseModel):
     interval_days: SeasonalInterval
     how_to_check: NonEmptyStr
