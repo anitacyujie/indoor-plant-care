@@ -30,9 +30,19 @@ class LocalizedText(StrictModel):
     en: NonEmptyStr
 
 
+Days = Annotated[int, Field(gt=0)]
+
+
 class SeasonalInterval(StrictModel):
-    spring_summer: int = Field(gt=0)
-    fall_winter: int = Field(gt=0)
+    spring_summer: Days
+    fall_winter: Days
+
+
+class SeasonalFeeding(StrictModel):
+    """Seasons instead of months, so it holds in both hemispheres."""
+
+    spring_summer: Days
+    fall_winter: Days | None  # None: do not fertilize in fall and winter
 
 
 # PPFD (µmol/m²/s): photosynthetically active photons reaching the leaf.
@@ -148,14 +158,10 @@ class Soil(StrictModel):
         return self
 
 
-Month = Annotated[int, Field(ge=1, le=12)]
-
-
 class Fertilizer(StrictModel):
     npk_ratio: NonEmptyStr
     dilution: NonEmptyStr
-    frequency_days: int = Field(gt=0)
-    pause_months: list[Month] = []
+    frequency_days: SeasonalFeeding
     notes: str = ""
     source_ids: SourceIds
 

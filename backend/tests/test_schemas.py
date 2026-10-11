@@ -43,7 +43,7 @@ VALID_GUIDE = {
     "fertilizer": {
         "npk_ratio": "3-1-2",
         "dilution": "half strength",
-        "frequency_days": 30,
+        "frequency_days": {"spring_summer": 14, "fall_winter": None},
         "source_ids": ["example"],
     },
     "sources": [{"id": "example", "title": "Example", "url": "https://example.com"}],
@@ -281,5 +281,34 @@ def test_soil_mix_rejects_unknown_watering_style(guide):
 
 def test_soil_mix_rejects_duplicate_watering_style(guide):
     guide["soil"]["mixes"][1]["watering_style"] = "top"
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_feeding_can_pause_in_fall_winter(guide):
+    result = PlantCareGuide.model_validate(guide)
+    assert result.fertilizer.frequency_days.fall_winter is None
+
+
+def test_feeding_accepts_fall_winter_interval(guide):
+    guide["fertilizer"]["frequency_days"]["fall_winter"] = 30
+    PlantCareGuide.model_validate(guide)
+
+
+def test_feeding_fall_winter_must_be_stated(guide):
+    del guide["fertilizer"]["frequency_days"]["fall_winter"]
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_feeding_spring_summer_cannot_pause(guide):
+    guide["fertilizer"]["frequency_days"]["spring_summer"] = None
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize("season", ["spring_summer", "fall_winter"])
+def test_feeding_interval_must_be_positive(guide, season):
+    guide["fertilizer"]["frequency_days"][season] = 0
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
