@@ -233,3 +233,18 @@ def test_distance_accepts_full_range_boundaries(guide):
         "max": MAX_WINDOW_DISTANCE_M,
     }
     PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ("unknown_field",),
+        ("light", "note"),
+        ("light", "placement", 0, "note"),
+        ("sources", 0, "author"),
+    ],
+)
+def test_unknown_field_rejected(guide, path):
+    set_field(guide, path, "typo or stale field")
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)

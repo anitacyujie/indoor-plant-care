@@ -1,6 +1,20 @@
 from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, HttpUrl, StringConstraints, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    StringConstraints,
+    model_validator,
+)
+
+
+class StrictModel(BaseModel):
+    """Base for all schemas: unknown fields (e.g. typos) are errors, not ignored."""
+
+    model_config = ConfigDict(extra="forbid")
+
 
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
@@ -11,12 +25,12 @@ Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
 SourceIds = Annotated[list[Slug], Field(min_length=1)]
 
 
-class LocalizedText(BaseModel):
+class LocalizedText(StrictModel):
     zh: NonEmptyStr
     en: NonEmptyStr
 
 
-class SeasonalInterval(BaseModel):
+class SeasonalInterval(StrictModel):
     spring_summer: int = Field(gt=0)
     fall_winter: int = Field(gt=0)
 
@@ -28,7 +42,7 @@ MAX_PPFD = 2_000
 Ppfd = Annotated[int, Field(ge=0, le=MAX_PPFD)]
 
 
-class PpfdRange(BaseModel):
+class PpfdRange(StrictModel):
     min: Ppfd
     max: Ppfd
 
@@ -42,7 +56,7 @@ class PpfdRange(BaseModel):
 WindowExposureId = Literal["strong", "gentle", "none"]
 
 
-class WindowExposure(BaseModel):
+class WindowExposure(StrictModel):
     """How much direct sun a window gets; shared by all plants."""
 
     id: WindowExposureId
@@ -57,7 +71,7 @@ MAX_WINDOW_DISTANCE_M = 6.0
 WindowDistance = Annotated[float, Field(ge=0, le=MAX_WINDOW_DISTANCE_M)]
 
 
-class DistanceRange(BaseModel):
+class DistanceRange(StrictModel):
     min: WindowDistance
     max: WindowDistance
 
@@ -68,13 +82,13 @@ class DistanceRange(BaseModel):
         return self
 
 
-class Placement(BaseModel):
+class Placement(StrictModel):
     window: WindowExposureId
     distance_m: DistanceRange
     notes: str = ""
 
 
-class Light(BaseModel):
+class Light(StrictModel):
     ideal_ppfd: PpfdRange
     tolerable_ppfd: PpfdRange
     ppfd_basis: Literal["stated_by_source", "converted_from_label"]
@@ -99,18 +113,18 @@ class Light(BaseModel):
         return self
 
 
-class Watering(BaseModel):
+class Watering(StrictModel):
     interval_days: SeasonalInterval
     how_to_check: NonEmptyStr
     source_ids: SourceIds
 
 
-class SoilComponent(BaseModel):
+class SoilComponent(StrictModel):
     component: NonEmptyStr
     parts: int = Field(gt=0)
 
 
-class Soil(BaseModel):
+class Soil(StrictModel):
     mix: list[SoilComponent] = Field(min_length=1)
     notes: str = ""
     source_ids: SourceIds
@@ -119,7 +133,7 @@ class Soil(BaseModel):
 Month = Annotated[int, Field(ge=1, le=12)]
 
 
-class Fertilizer(BaseModel):
+class Fertilizer(StrictModel):
     npk_ratio: NonEmptyStr
     dilution: NonEmptyStr
     frequency_days: int = Field(gt=0)
@@ -128,13 +142,13 @@ class Fertilizer(BaseModel):
     source_ids: SourceIds
 
 
-class Source(BaseModel):
+class Source(StrictModel):
     id: Slug
     title: NonEmptyStr
     url: HttpUrl
 
 
-class PlantCareGuide(BaseModel):
+class PlantCareGuide(StrictModel):
     id: Slug
     names: LocalizedText
     scientific_name: NonEmptyStr
