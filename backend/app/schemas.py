@@ -11,7 +11,7 @@ Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
 SourceIds = Annotated[list[Slug], Field(min_length=1)]
 
 
-class Names(BaseModel):
+class LocalizedText(BaseModel):
     zh: NonEmptyStr
     en: NonEmptyStr
 
@@ -56,6 +56,20 @@ class Light(BaseModel):
         return self
 
 
+WindowExposureId = Literal["strong", "gentle", "none"]
+
+Direction = Literal["north", "east", "south", "west"]
+
+
+class WindowExposure(BaseModel):
+    """How much direct sun a window gets; shared by all plants."""
+
+    id: WindowExposureId
+    names: LocalizedText
+    how_to_tell: LocalizedText
+    typical_northern_hemisphere: list[Direction] = Field(min_length=1)
+
+
 class Watering(BaseModel):
     interval_days: SeasonalInterval
     how_to_check: NonEmptyStr
@@ -93,7 +107,7 @@ class Source(BaseModel):
 
 class PlantCareGuide(BaseModel):
     id: Slug
-    names: Names
+    names: LocalizedText
     scientific_name: NonEmptyStr
     cultivar: str | None = None
     variegated: bool
