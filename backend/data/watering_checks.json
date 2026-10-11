@@ -1,0 +1,10 @@
+[
+  {
+    "id": "pot_weight",
+    "names": { "zh": "掂盆", "en": "Pot weight" },
+    "how_to": {
+      "zh": "浇透后掂一下花盆，记住满水时的重量。花盆明显变轻时再浇水。",
+      "en": "Lift the pot right after a thorough watering to learn its full weight. Water again when it feels clearly lighter."
+    }
+  }
+]

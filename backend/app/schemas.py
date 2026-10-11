@@ -123,11 +123,28 @@ class Light(StrictModel):
         return self
 
 
+WateringCheckId = Literal["pot_weight"]
+
+
+class WateringCheck(StrictModel):
+    """A way to tell it is time to water; shared by all plants."""
+
+    id: WateringCheckId
+    names: LocalizedText
+    how_to: LocalizedText
+
+
 class Watering(StrictModel):
     interval_days: SeasonalInterval
-    how_to_check: NonEmptyStr
+    how_to_check: list[WateringCheckId] = Field(min_length=1)
     how_to_water: NonEmptyStr
     source_ids: SourceIds
+
+    @model_validator(mode="after")
+    def check_checks_unique(self) -> Self:
+        if len(self.how_to_check) != len(set(self.how_to_check)):
+            raise ValueError("each watering check may appear only once")
+        return self
 
 
 class SoilComponent(StrictModel):

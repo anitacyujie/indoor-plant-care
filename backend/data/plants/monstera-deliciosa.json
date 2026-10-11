@@ -28,7 +28,7 @@
   },
   "watering": {
     "interval_days": { "spring_summer": 7, "fall_winter": 14 },
-    "how_to_check": "Lift the pot right after a thorough watering to learn its full weight. Water again when it feels clearly lighter.",
+    "how_to_check": ["pot_weight"],
     "how_to_water": "Bottom water: stand the pot in a tray of water until the surface soil turns damp. If it is still dry after 15-20 minutes, finish by watering from the top. Do not leave the pot standing in water afterwards. Once a month, water from the top until it drains out the bottom, to flush out fertilizer salts.",
     "source_ids": [
       "realhomes-monstera-water",

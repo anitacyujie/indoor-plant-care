@@ -23,7 +23,7 @@ VALID_GUIDE = {
     },
     "watering": {
         "interval_days": {"spring_summer": 7, "fall_winter": 14},
-        "how_to_check": "Water when the top few cm of soil are dry.",
+        "how_to_check": ["pot_weight"],
         "how_to_water": "Water thoroughly, then empty the saucer.",
         "source_ids": ["example"],
     },
@@ -77,7 +77,6 @@ REQUIRED_TEXT_FIELDS = [
     ("names", "zh"),
     ("names", "en"),
     ("scientific_name",),
-    ("watering", "how_to_check"),
     ("watering", "how_to_water"),
     ("soil", "mixes", 0, "components", 0, "component"),
     ("fertilizer", "npk_ratio"),
@@ -310,5 +309,23 @@ def test_feeding_spring_summer_cannot_pause(guide):
 @pytest.mark.parametrize("season", ["spring_summer", "fall_winter"])
 def test_feeding_interval_must_be_positive(guide, season):
     guide["fertilizer"]["frequency_days"][season] = 0
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_how_to_check_is_required(guide):
+    guide["watering"]["how_to_check"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_how_to_check_rejects_unknown_method(guide):
+    guide["watering"]["how_to_check"] = ["finger_test"]
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_how_to_check_rejects_duplicate_method(guide):
+    guide["watering"]["how_to_check"] = ["pot_weight", "pot_weight"]
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
