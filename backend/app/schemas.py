@@ -1,6 +1,6 @@
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, Field, HttpUrl, StringConstraints
+from pydantic import BaseModel, Field, HttpUrl, StringConstraints, model_validator
 
 NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
@@ -14,14 +14,27 @@ class SeasonalInterval(BaseModel):
     spring_summer: int = Field(gt=0)
     fall_winter: int = Field(gt=0)
 
+
+# Peak direct sunlight at ground level; no plant needs more than this.
+MAX_LUX = 100_000
+
+Lux = Annotated[int, Field(ge=0, le=MAX_LUX)]
+
+
 class LuxRange(BaseModel):
-    min: int = Field(ge=0)
-    max: int | None = None
+    min: Lux
+    max: Lux
+
+    @model_validator(mode="after")
+    def check_max_not_below_min(self) -> Self:
+        if self.max < self.min:
+            raise ValueError("max must be greater than or equal to min")
+        return self
 
 
 class Light(BaseModel):
     ideal_lux: LuxRange
-    minimum_lux: int = Field(ge=0)
+    tolerable_lux: LuxRange
     lux_basis: Literal["stated_by_source", "converted_from_label"]
     notes: str = ""
     
