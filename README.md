@@ -4,7 +4,7 @@ A plant care app that gives precise, **sourced** care guides for each plant (lig
 
 Most plant apps give generic advice ("bright indirect light, water when dry"). This project goes down to the cultivar level, because a variegated Monstera needs different care than a plain green one, and every recommendation links to the sources it came from.
 
-> **Status:** in progress. The backend API and plant library schema are done; user features, the frontend and infrastructure are next (see [Roadmap](#roadmap)).
+> **Status:** in progress. The plant library (schema, data and read-only API) is done. Next: user data (add my plants, log watering, see which plants need water today), then the frontend and infrastructure (see [Roadmap](#roadmap)).
 
 ## Tech stack
 
