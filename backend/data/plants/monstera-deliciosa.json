@@ -1,0 +1,173 @@
+{
+  "id": "monstera-deliciosa",
+  "names": { "zh": "龟背竹", "en": "Monstera" },
+  "scientific_name": "Monstera deliciosa",
+  "cultivar": null,
+  "variegated": false,
+  "light": {
+    "ideal_ppfd": { "min": 150, "max": 250 },
+    "tolerable_ppfd": { "min": 100, "max": 400 },
+    "ppfd_basis": "stated_by_source",
+    "placement": [
+      { "window": "gentle", "distance_m": { "min": 0, "max": 1 } },
+      {
+        "window": "strong",
+        "distance_m": { "min": 0, "max": 1.5 },
+        "notes": "Keep it just out of the patch of direct sun."
+      }
+    ],
+    "notes": "Bright, indirect light. An hour or two of gentle morning sun is fine; a few hours of strong direct sun can scorch the leaves. In low light, growth slows and new leaves come in without splits.",
+    "source_ids": [
+      "blooming-expert-monstera-light",
+      "barrina-monstera-light",
+      "epic-gardening-monstera-light",
+      "illinois-extension-lighting",
+      "nc-state-monstera",
+      "psu-monstera"
+    ]
+  },
+  "watering": {
+    "interval_days": { "spring_summer": 7, "fall_winter": 14 },
+    "how_to_check": "Lift the pot right after a thorough watering to learn its full weight. Water again when it feels clearly lighter.",
+    "how_to_water": "Bottom water: stand the pot in a tray of water until the surface soil turns damp. If it is still dry after 15-20 minutes, finish by watering from the top. Do not leave the pot standing in water afterwards. Once a month, water from the top until it drains out the bottom, to flush out fertilizer salts.",
+    "source_ids": [
+      "realhomes-monstera-water",
+      "epic-gardening-monstera-water",
+      "lively-root-bottom-watering"
+    ]
+  },
+  "soil": {
+    "mixes": [
+      {
+        "watering_style": "top",
+        "components": [
+          { "component": "orchid bark", "parts": 6 },
+          { "component": "coco coir", "parts": 4 },
+          { "component": "perlite", "parts": 4 },
+          { "component": "horticultural charcoal", "parts": 2 },
+          { "component": "worm castings", "parts": 1 }
+        ]
+      },
+      {
+        "watering_style": "bottom",
+        "components": [
+          { "component": "coco coir", "parts": 6 },
+          { "component": "orchid bark", "parts": 6 },
+          { "component": "perlite", "parts": 4 },
+          { "component": "horticultural charcoal", "parts": 1 },
+          { "component": "worm castings", "parts": 1 }
+        ]
+      }
+    ],
+    "notes": "Pumice can replace perlite. Prefer coco coir over peat as the more sustainable choice. The bottom-watering mix holds more coir so water wicks up more easily; sources do not pair mixes with watering styles, this pairing is ours.",
+    "source_ids": [
+      "soltech-aroid-mix",
+      "elm-dirt-aroid-mix",
+      "sydney-plant-guy-potting-mix",
+      "lively-root-bottom-watering",
+      "rhs-monstera",
+      "psu-monstera"
+    ]
+  },
+  "fertilizer": {
+    "npk_ratio": "Balanced (equal N-P-K)",
+    "dilution": "Label strength for houseplant fertilizers; 1/2 to 1/4 strength for general all-purpose ones.",
+    "frequency_days": { "spring_summer": 14, "fall_winter": 30 },
+    "notes": "Alternative: feed at about 1/4 strength every time you water. If the plant puts out no new growth in winter, pause feeding until spring.",
+    "source_ids": [
+      "psu-monstera",
+      "rhs-monstera",
+      "iowa-state-fertilizing",
+      "laidback-gardener-weekly-weakly"
+    ]
+  },
+  "consensus": [
+    "Bright, indirect light; long periods of direct sun scorch the leaves.",
+    "Let the top of the soil dry before watering again, and never leave the pot standing in water.",
+    "A chunky, well-draining mix of coir, bark, and perlite or pumice.",
+    "Feed a balanced fertilizer while the plant is actively growing."
+  ],
+  "disputed": [
+    "PPFD targets come from grow-light vendors. Extension services give only foot-candles or descriptions, and some of those figures convert to a much lower PPFD (Illinois Extension's 'high light' of 300 fc is roughly 60 µmol/m²/s in sunlight).",
+    "Winter watering: most sources say every 10-14 days; Epic Gardening says cold spells can cut it to about once a month.",
+    "Winter feeding: Penn State feeds monthly through winter; RHS and Iowa State feed only during active growth.",
+    "Mix proportions: Soltech and Elm Dirt use mostly bark; Sydney Plant Guy uses equal parts coir, bark and perlite."
+  ],
+  "sources": [
+    {
+      "id": "psu-monstera",
+      "title": "Penn State Extension - Monstera as a Houseplant",
+      "url": "https://extension.psu.edu/monstera-as-a-houseplant"
+    },
+    {
+      "id": "nc-state-monstera",
+      "title": "NC State Extension Plant Toolbox - Monstera deliciosa",
+      "url": "https://plants.ces.ncsu.edu/plants/monstera-deliciosa/common-name/swiss-cheese-plant/"
+    },
+    {
+      "id": "rhs-monstera",
+      "title": "RHS - Monstera deliciosa (Swiss cheese plant)",
+      "url": "https://www.rhs.org.uk/plants/11192/swiss-cheese-plant/details"
+    },
+    {
+      "id": "illinois-extension-lighting",
+      "title": "Illinois Extension - Houseplants: Lighting",
+      "url": "https://extension.illinois.edu/houseplants/lighting"
+    },
+    {
+      "id": "iowa-state-fertilizing",
+      "title": "Iowa State Extension - How often should I fertilize houseplants?",
+      "url": "https://yardandgarden.extension.iastate.edu/faq/how-often-should-i-fertilize-houseplants"
+    },
+    {
+      "id": "blooming-expert-monstera-light",
+      "title": "Blooming Expert - Best Grow Lights for Monstera",
+      "url": "https://www.bloomingexpert.com/tips/best-grow-light-monstera/"
+    },
+    {
+      "id": "barrina-monstera-light",
+      "title": "Barrina - The Impact of Light Intensity on the Leaf Opening of Monstera Deliciosa",
+      "url": "https://www.barrina-led.com/blogs/news/the-impact-of-light-intensity-on-the-leaf-opening-of-monstera-deliciosa"
+    },
+    {
+      "id": "epic-gardening-monstera-light",
+      "title": "Epic Gardening - How Much Light Do Monstera Plants Need?",
+      "url": "https://www.epicgardening.com/monstera-sunlight/"
+    },
+    {
+      "id": "epic-gardening-monstera-water",
+      "title": "Epic Gardening - How Much and How Often Should You Water Your Monstera Plants?",
+      "url": "https://www.epicgardening.com/monstera-water/"
+    },
+    {
+      "id": "realhomes-monstera-water",
+      "title": "Real Homes - How often to water monstera, according to gardening pros",
+      "url": "https://www.realhomes.com/advice/how-often-to-water-monstera"
+    },
+    {
+      "id": "lively-root-bottom-watering",
+      "title": "Lively Root - Bottom Watering vs. Top Watering Your Plants",
+      "url": "https://livelyroot.com/blogs/plant-care/bottom-watering-vs-top-watering-your-plants"
+    },
+    {
+      "id": "soltech-aroid-mix",
+      "title": "Soltech - The Ultimate Guide to the Best Aroid Soil Mix",
+      "url": "https://soltech.com/blogs/blog/the-ultimate-guide-to-the-best-aroid-soil-mix"
+    },
+    {
+      "id": "elm-dirt-aroid-mix",
+      "title": "Elm Dirt - Best Aroid Soil Mix",
+      "url": "https://www.elmdirt.com/blogs/news/best-aroid-soil-mix"
+    },
+    {
+      "id": "sydney-plant-guy-potting-mix",
+      "title": "SydneyPlantGuy - Potting Mix",
+      "url": "https://www.sydneyplantguy.com/potting-mix"
+    },
+    {
+      "id": "laidback-gardener-weekly-weakly",
+      "title": "Laidback Gardener - Fertilize Weekly... Weakly",
+      "url": "https://laidbackgardener.blog/2019/05/20/fertilize-weekly-weakly/"
+    }
+  ]
+}
