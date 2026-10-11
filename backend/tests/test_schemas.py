@@ -28,7 +28,16 @@ VALID_GUIDE = {
         "source_ids": ["example"],
     },
     "soil": {
-        "mix": [{"component": "bark", "parts": 1}],
+        "mixes": [
+            {
+                "watering_style": "top",
+                "components": [{"component": "bark", "parts": 1}],
+            },
+            {
+                "watering_style": "bottom",
+                "components": [{"component": "coco coir", "parts": 2}],
+            },
+        ],
         "source_ids": ["example"],
     },
     "fertilizer": {
@@ -70,7 +79,7 @@ REQUIRED_TEXT_FIELDS = [
     ("scientific_name",),
     ("watering", "how_to_check"),
     ("watering", "how_to_water"),
-    ("soil", "mix", 0, "component"),
+    ("soil", "mixes", 0, "components", 0, "component"),
     ("fertilizer", "npk_ratio"),
     ("fertilizer", "dilution"),
     ("sources", 0, "title"),
@@ -248,5 +257,29 @@ def test_distance_accepts_full_range_boundaries(guide):
 )
 def test_unknown_field_rejected(guide, path):
     set_field(guide, path, "typo or stale field")
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_soil_mixes_required(guide):
+    guide["soil"]["mixes"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_soil_mix_components_required(guide):
+    guide["soil"]["mixes"][0]["components"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_soil_mix_rejects_unknown_watering_style(guide):
+    guide["soil"]["mixes"][0]["watering_style"] = "wick"
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_soil_mix_rejects_duplicate_watering_style(guide):
+    guide["soil"]["mixes"][1]["watering_style"] = "top"
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)

@@ -125,10 +125,27 @@ class SoilComponent(StrictModel):
     parts: int = Field(gt=0)
 
 
+WateringStyle = Literal["top", "bottom"]
+
+
+class SoilMix(StrictModel):
+    """A mix suited to one watering style, e.g. more coir for bottom watering."""
+
+    watering_style: WateringStyle
+    components: list[SoilComponent] = Field(min_length=1)
+
+
 class Soil(StrictModel):
-    mix: list[SoilComponent] = Field(min_length=1)
+    mixes: list[SoilMix] = Field(min_length=1)
     notes: str = ""
     source_ids: SourceIds
+
+    @model_validator(mode="after")
+    def check_watering_styles_unique(self) -> Self:
+        styles = [mix.watering_style for mix in self.mixes]
+        if len(styles) != len(set(styles)):
+            raise ValueError("each watering style may have only one mix")
+        return self
 
 
 Month = Annotated[int, Field(ge=1, le=12)]
