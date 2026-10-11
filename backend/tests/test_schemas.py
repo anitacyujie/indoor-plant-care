@@ -3,7 +3,7 @@ import copy
 import pytest
 from pydantic import ValidationError
 
-from app.schemas import MAX_PPFD, PlantCareGuide
+from app.schemas import MAX_PPFD, PlantCareGuide, Source
 
 VALID_GUIDE = {
     "id": "monstera-deliciosa-albo",
@@ -15,18 +15,24 @@ VALID_GUIDE = {
         "ideal_ppfd": {"min": 150, "max": 250},
         "tolerable_ppfd": {"min": 100, "max": 400},
         "ppfd_basis": "converted_from_label",
+        "source_ids": ["example"],
     },
     "watering": {
         "interval_days": {"spring_summer": 7, "fall_winter": 14},
         "how_to_check": "Water when the top few cm of soil are dry.",
+        "source_ids": ["example"],
     },
-    "soil": {"mix": [{"component": "bark", "parts": 1}]},
+    "soil": {
+        "mix": [{"component": "bark", "parts": 1}],
+        "source_ids": ["example"],
+    },
     "fertilizer": {
         "npk_ratio": "3-1-2",
         "dilution": "half strength",
         "frequency_days": 30,
+        "source_ids": ["example"],
     },
-    "sources": [{"title": "Example", "url": "https://example.com"}],
+    "sources": [{"id": "example", "title": "Example", "url": "https://example.com"}],
 }
 
 
@@ -69,12 +75,6 @@ REQUIRED_TEXT_FIELDS = [
 @pytest.mark.parametrize("path", REQUIRED_TEXT_FIELDS)
 def test_required_text_rejects_blank(guide, path, blank):
     set_field(guide, path, blank)
-    with pytest.raises(ValidationError):
-        PlantCareGuide.model_validate(guide)
-
-
-def test_sources_must_not_be_empty(guide):
-    guide["sources"] = []
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
 
@@ -153,3 +153,34 @@ def test_ideal_ppfd_outside_tolerable_rejected(guide, ideal):
     guide["light"]["ideal_ppfd"] = ideal
     with pytest.raises(ValidationError):
         PlantCareGuide.model_validate(guide)
+
+
+CITING_SECTIONS = ["light", "watering", "soil", "fertilizer"]
+
+
+@pytest.mark.parametrize("section", CITING_SECTIONS)
+def test_section_must_cite_a_source(guide, section):
+    guide[section]["source_ids"] = []
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+@pytest.mark.parametrize("section", CITING_SECTIONS)
+def test_section_rejects_unknown_source_id(guide, section):
+    guide[section]["source_ids"] = ["missing-source"]
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+def test_source_ids_must_be_unique(guide):
+    guide["sources"].append(copy.deepcopy(guide["sources"][0]))
+    with pytest.raises(ValidationError):
+        PlantCareGuide.model_validate(guide)
+
+
+# Validated on Source alone, so the citation check cannot reject it instead.
+def test_source_id_must_be_slug():
+    with pytest.raises(ValidationError):
+        Source.model_validate(
+            {"id": "Not A Slug", "title": "Example", "url": "https://example.com"}
+        )
