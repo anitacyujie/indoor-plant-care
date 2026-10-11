@@ -116,6 +116,7 @@ class Light(StrictModel):
 class Watering(StrictModel):
     interval_days: SeasonalInterval
     how_to_check: NonEmptyStr
+    how_to_water: NonEmptyStr
     source_ids: SourceIds
 
 

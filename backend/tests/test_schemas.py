@@ -24,6 +24,7 @@ VALID_GUIDE = {
     "watering": {
         "interval_days": {"spring_summer": 7, "fall_winter": 14},
         "how_to_check": "Water when the top few cm of soil are dry.",
+        "how_to_water": "Water thoroughly, then empty the saucer.",
         "source_ids": ["example"],
     },
     "soil": {
@@ -68,6 +69,7 @@ REQUIRED_TEXT_FIELDS = [
     ("names", "en"),
     ("scientific_name",),
     ("watering", "how_to_check"),
+    ("watering", "how_to_water"),
     ("soil", "mix", 0, "component"),
     ("fertilizer", "npk_ratio"),
     ("fertilizer", "dilution"),
