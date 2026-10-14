@@ -1,10 +1,10 @@
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 from sqlalchemy.exc import IntegrityError, StatementError
 
-from app.models import MyPlant, UserSettings
+from app.models import MyPlant, UserSettings, WateringEvent
 
 
 def test_foreign_keys_are_enforced(session):
@@ -84,3 +84,57 @@ def test_datetime_without_time_zone_is_rejected(session):
     session.add(MyPlant(plant_id="monstera-deliciosa", nickname="x", created_at=datetime(2026, 1, 15)))
     with pytest.raises(StatementError, match="timezone-aware"):
         session.commit()
+
+
+def count_events(session):
+    return session.scalar(select(func.count()).select_from(WateringEvent))
+
+
+def test_watering_event_links_both_ways(session):
+    plant = add_plant(session)
+    event = WateringEvent(my_plant=plant)
+    session.add(event)
+    session.commit()
+    assert event.my_plant_id == plant.id
+    assert plant.watering_events == [event]
+    assert event.watered_at.tzinfo == UTC
+
+
+def test_watering_event_rejects_unknown_plant(session):
+    session.add(WateringEvent(my_plant_id=999))
+    with pytest.raises(IntegrityError, match="FOREIGN KEY"):
+        session.commit()
+
+
+def test_watering_event_requires_plant(session):
+    session.add(WateringEvent())
+    with pytest.raises(IntegrityError, match="NOT NULL.*my_plant_id"):
+        session.commit()
+
+
+def test_deleting_plant_deletes_its_watering_events(session):
+    plant = add_plant(session)
+    other = add_plant(session, nickname="Bedroom")
+    session.add_all([WateringEvent(my_plant=plant), WateringEvent(my_plant=plant), WateringEvent(my_plant=other)])
+    session.commit()
+
+    session.delete(plant)
+    session.commit()
+
+    assert count_events(session) == 1  # only the other plant's event is left
+
+
+def test_deleting_watering_event_keeps_plant_and_other_events(session):
+    plant = add_plant(session)
+    mistake, kept = WateringEvent(my_plant=plant), WateringEvent(my_plant=plant)
+    session.add_all([mistake, kept])
+    session.commit()
+    assert plant.watering_events == [mistake, kept]  # loads the collection into memory
+
+    session.delete(mistake)
+    session.commit()
+
+    # No manual refresh: commit must expire the loaded collection, so the
+    # next read comes from the database without the deleted event.
+    assert plant.watering_events == [kept]
+    assert session.get(MyPlant, plant.id) is not None

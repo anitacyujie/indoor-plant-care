@@ -2,8 +2,8 @@
 
 from datetime import UTC, datetime
 
-from sqlalchemy import CheckConstraint, DateTime, TypeDecorator
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, TypeDecorator
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -58,3 +58,23 @@ class MyPlant(Base):
     plant_id: Mapped[str]
     nickname: Mapped[str]  # not unique: two plants may share a name
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utc_now)
+
+    # passive_deletes: leave deleting the events to ON DELETE CASCADE in the
+    # database instead of loading and deleting each one from Python.
+    watering_events: Mapped[list["WateringEvent"]] = relationship(
+        back_populates="my_plant", passive_deletes=True
+    )
+
+
+class WateringEvent(Base):
+    """One watering. The latest one decides when the plant needs water next."""
+
+    __tablename__ = "watering_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    my_plant_id: Mapped[int] = mapped_column(
+        ForeignKey("my_plants.id", ondelete="CASCADE"), index=True
+    )
+    watered_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utc_now)
+
+    my_plant: Mapped[MyPlant] = relationship(back_populates="watering_events")
