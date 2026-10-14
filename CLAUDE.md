@@ -17,7 +17,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 ## Tech stack
 
 - Backend: Python + FastAPI, in `backend/`, virtual environment at `backend/.venv`, dependencies in `backend/requirements.txt`
-- Database: SQLite to start, PostgreSQL later
+- Database: SQLite to start, PostgreSQL later; SQLAlchemy 2.0 ORM, Alembic migrations in `backend/migrations/`
 - Frontend: React + Vite, PWA (later, in `frontend/`)
 - Tests: pytest (unit and API), Playwright (end-to-end)
 - Infra (later): Docker + docker-compose, GitHub Actions CI/CD, cloud deployment, Prometheus + Grafana
@@ -52,6 +52,18 @@ Each entry should be specific down to the cultivar (e.g., variegated varieties n
 - Data rules: read every source in full before citing it; never cite a claim seen only in a search summary. Store facts and our own wording, never copied text. Record disagreements in `disputed`.
 - Deferred ideas: `docs/ideas.md`.
 
+## User data
+
+Stored in SQLite; models in `backend/app/models.py`. The plant library stays in JSON (reference data, versioned in git); only user data goes in the database.
+
+- Tables: `user_settings` (single row: IANA `timezone`, `hemisphere`), `my_plants`, `watering_events` (one row per watering, so history is kept and mistakes can be undone).
+- `my_plants.plant_id` refers to the JSON library, so it cannot be a foreign key; the app must check it.
+- Datetimes are stored in UTC (`UtcDateTime` rejects naive datetimes); "today" is computed in the user's time zone.
+- Seasons are meteorological: in the north, March-August is `spring_summer`; flipped in the south.
+- Care dates need settings: if none are saved, the API returns an error instead of guessing defaults.
+- Deleting a plant deletes its watering events through `ON DELETE CASCADE` (SQLite needs `PRAGMA foreign_keys = ON` on every connection; `create_db_engine` does this).
+- Migrations run by hand (`alembic upgrade head`), never at app startup. Generated migrations must be reviewed; autogenerate does not detect CHECK constraint changes.
+
 ## Current status
 
 - Dev environment ready: Python 3.13, Git, VS Code, Claude Code.
@@ -60,4 +72,5 @@ Each entry should be specific down to the cultivar (e.g., variegated varieties n
 - Plant library schema done, with tests; every test verified by mutation testing (break the code, confirm the test fails).
 - First plant entry: Monstera deliciosa (plain green).
 - API: `GET /plants`, `GET /plants/{plant_id}`; the library loads and validates at startup.
-- Next: user data in SQLite — add my plant, log watering, compute who needs water today. Then a simple frontend.
+- User data tables done (`user_settings`, `my_plants`, `watering_events`) with Alembic migrations and tests.
+- Next: API for user data — save settings, add my plant, log watering, compute who needs water today. Then a simple frontend.
