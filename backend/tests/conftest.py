@@ -3,6 +3,9 @@
 import copy
 
 import pytest
+from sqlalchemy.orm import Session
+
+from app.database import Base, create_db_engine
 
 VALID_GUIDE = {
     "id": "monstera-deliciosa-albo",
@@ -52,3 +55,13 @@ VALID_GUIDE = {
 @pytest.fixture
 def guide():
     return copy.deepcopy(VALID_GUIDE)
+
+
+@pytest.fixture
+def session():
+    """A fresh in-memory database with all tables, discarded after each test."""
+    engine = create_db_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+    engine.dispose()
