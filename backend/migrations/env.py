@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from sqlalchemy import TypeDecorator
 
 import app.models  # noqa: F401  registers every table on Base.metadata
 from app.database import DATABASE_URL, Base, create_db_engine
@@ -16,6 +17,17 @@ target_metadata = Base.metadata
 # SQLite cannot alter most column properties in place. Batch mode makes
 # Alembic copy the table, change the copy, and swap it in instead.
 RENDER_AS_BATCH = DATABASE_URL.startswith("sqlite")
+
+
+def render_item(type_, obj, autogen_context):
+    """Write custom column types as their plain SQL type in migrations.
+
+    A migration must keep working after app code changes, so it should not
+    import our TypeDecorator classes. Returning False keeps the default.
+    """
+    if type_ == "type" and isinstance(obj, TypeDecorator):
+        return f"sa.{obj.impl!r}"
+    return False
 
 
 def run_migrations_offline() -> None:
@@ -41,6 +53,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             render_as_batch=RENDER_AS_BATCH,
+            render_item=render_item,
         )
 
         with context.begin_transaction():
