@@ -60,7 +60,7 @@ Each step ends in a working, demoable state.
 
 1. **Core (P0)**: Products, Groups, CarePlans, CareLogs and History as backend API with SQLite, then a simple frontend. Build the backend first.
 2. **Tests**: pytest unit and API tests (including "editing a plan does not change past logs"); Playwright E2E for the main flow.
-3. **Docker**: containerize frontend, backend, and database; start everything with docker-compose.
+3. **Docker**: containerize frontend, backend, and database; start everything with docker-compose. Then run mutation testing (mutmut) inside the backend container; see `docs/ideas.md`.
 4. **CI/CD and deployment**: GitHub Actions runs tests on every push and deploys on success to a public URL. Adopt a feature-branch + pull request workflow here. Then add Upcoming reminders via PWA push (needs HTTPS).
 5. **Monitoring**: four golden signals from the backend; Prometheus + Grafana dashboards; one or two alerts.
 6. **Failure drill and docs**: intentionally break something (e.g., stop the database), verify alerts and dashboards, write an RCA and a runbook; finish README and architecture diagram.
