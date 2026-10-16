@@ -76,9 +76,9 @@ AI features, in order, after the core works:
 - Dev environment ready: Python 3.13, Git, VS Code, Claude Code. Repo: `indoor-plant-care`.
 - FastAPI backend with a `/health` endpoint.
 - pytest set up (`pytest.ini`, shared fixtures in `conftest.py`, parametrized tests).
-- SQLAlchemy and Alembic set up, with tests for models and migrations.
-- Code from the previous direction (per-species care guides) is being removed:
-  - Done: the `PlantCareGuide` schema (PPFD-based light, window exposures, watering), the JSON plant library in `backend/data/`, and the `/plants` endpoints.
-  - Still to remove: the `user_settings`, `my_plants`, and `watering_events` tables. Nothing was ever deployed, so the migration chain is reset instead of adding a migration that drops them.
+- SQLAlchemy and Alembic set up, with tests for `UtcDateTime` and migrations. No tables yet; the migration chain is empty.
+- Code from the previous direction (per-species care guides) was removed:
+  - The `PlantCareGuide` schema (PPFD-based light, window exposures, watering), the JSON plant library in `backend/data/`, and the `/plants` endpoints.
+  - The `user_settings`, `my_plants`, and `watering_events` tables. Nothing was ever deployed, so the migration chain was reset instead of adding a migration that drops them.
   - Kept for reuse: `StrictModel`, `NonEmptyStr`, `Slug`, `Days`, `SoilComponent` (for group soil mixes), `create_db_engine`, `UtcDateTime`.
 - Next: Product schema and validation tests, then Product API endpoints.
