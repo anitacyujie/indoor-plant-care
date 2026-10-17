@@ -4,10 +4,15 @@ Ideas that came up during development but are out of scope for now. Each entry n
 
 ## Data model
 
-### Shared soil component reference data
-A `soil_components` reference list describing each component's properties: drainage, aeration, moisture retention, stability, nutrients.
-- **Why:** the UI could explain why a group's soil mix is put together the way it is.
-- **Depends on:** Groups with soil mixes (roadmap step 1).
+### Shared medium component reference data
+A `medium_components` reference list describing each component's properties: drainage, aeration, moisture retention, stability, nutrients.
+- **Why:** the UI could explain why a growing medium is put together the way it is.
+- **Depends on:** GrowingMedium (roadmap step 1).
+
+### Plant supports (e.g. moss poles)
+A moss pole is a support, not the growing medium in the pot: a Monstera on a moss pole still grows in its aroid mix. For now it goes in the group's notes.
+- **Idea:** a supports field on groups (moss pole, coir pole, trellis), possibly with a reminder to re-wet or top up the moss.
+- **When:** if users want reminders for it.
 
 ### Weight or volume basis for liquid concentrations
 Liquid labels may state nutrient percentages by weight (w/w) or by weight per volume (w/v). Australia's labelling code requires w/v for liquids; the EU allows either mass or volume. Add a `concentration_basis` (`w/w` / `w/v`) to `Npk`.
@@ -35,7 +40,7 @@ Plants in the same family can need different humidity (Philodendron and Anthuriu
 - **When:** after the core works.
 
 ### Copy a group
-Create "Variegated aroids" from "Aroids" with the same taxa, soil mix, and plans, then lower the fertilizer dose.
+Create "Variegated aroids" from "Aroids" with the same taxa, growing medium, and plans, then lower the fertilizer dose.
 - **Depends on:** CarePlans.
 
 
@@ -60,7 +65,7 @@ So far every test was verified by hand: break the code with a targeted change, c
 
 ## AI drafting from web sources (AI feature 2)
 
-Notes for drafting a care plan and soil mix for a new genus group from multiple sources.
+Notes for drafting a care plan and growing medium for a new genus group from multiple sources.
 
 ### Source rules
 - Read every source in full before citing it; never cite a claim seen only in a search summary.

@@ -29,10 +29,12 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 ## Data model
 
 - **Product**: brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), label directions (dose per volume of water, frequency, and a `use` name when there are several), notes. Shared across users.
-- **Group**: name (unique ignoring case; the UI pre-fills it from the chosen taxa and variegation, and the user may edit it), one or more taxa (genus or family, from the reference list or `other`), variegation (`none` / `variegated` / `mixed`), an optional soil mix, notes. No list of individual plants.
-  - Why not one group per genus or family: care dimensions group differently. Aroids (Monstera, Philodendron, Anthurium) share a soil mix, but Philodendron and Anthurium want more humidity than Monstera and pothos.
-- **SoilMix**: name (unique), components with parts (a fixed list of ids plus `other` with a name). Defined once and shared by any number of groups, the way plans share products.
-  - Each component appears at most once per mix; `other` names are compared case-insensitively and may not repeat a listed id (use the listed id instead).
+- **Group**: name (unique ignoring case; the UI pre-fills it from the chosen taxa and variegation, and the user may edit it), one or more taxa (genus or family, from the reference list or `other`), variegation (`none` / `variegated` / `mixed`), an optional growing medium, notes (e.g. a moss pole). No list of individual plants.
+  - Why not one group per genus or family: care dimensions group differently. Aroids (Monstera, Philodendron, Anthurium) share a growing medium, but Philodendron and Anthurium want more humidity than Monstera and pothos.
+- **GrowingMedium**: name (unique), method (`soil` / `semi_hydro` / `hydro`), components with parts (a fixed list of ids plus `other` with a name), notes. Defined once and shared by any number of groups, the way plans share products.
+  - `method` is separate from components: the same LECA can loosen a soil mix or be the whole semi-hydro medium, and those are cared for differently (reservoir, feeding at every watering).
+  - `soil` and `semi_hydro` need at least one component; `hydro` may have none (water only). Sphagnum moss alone (e.g. for orchids) is `soil` with one component.
+  - Each component appears at most once per medium; `other` names are compared ignoring case, with spaces and hyphens treated as underscores, and may not repeat a listed id (use the listed id instead).
 - **Taxa reference list** (`backend/data/taxa.json`, reference data versioned in git, not in the database; loaded and validated once at startup): genera and families with each genus's family, aliases, and common names (en / zh). The user picks a genus by its scientific or common name and the family follows, so nobody needs to know families. The app may suggest an existing group with the same family, but never assigns a group by itself (same family does not mean same care).
   - Genera whose names changed recently keep the familiar name as the entry and list the new name as an alias (Calathea / Goeppertia, Sansevieria / Dracaena, Saintpaulia / Streptocarpus, Schefflera arboricola / Heptapleurum).
   - Family per genus is checked against a taxonomic database (GBIF) and candidate genera come from extension houseplant lists; every entry needs a source.
@@ -80,7 +82,7 @@ Each step ends in a working, demoable state.
 AI features, in order, after the core works:
 
 1. Read a fertilizer label photo and draft a Product (validated by the Pydantic schema, confirmed by the user), with an evaluation set measuring extraction accuracy.
-2. Draft a care plan and soil mix for a new genus group from multiple web sources, with sources, consensus, and disputed points.
+2. Draft a care plan and growing medium for a new genus group from multiple web sources, with sources, consensus, and disputed points.
 3. Natural-language quick logging (e.g., "fertilized variegated Monstera, 1 ml").
 
 ## Current status
@@ -93,7 +95,7 @@ AI features, in order, after the core works:
   - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with CHECK constraints mirroring the schema.
   - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
-- Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name; schema done, used by SoilMix.
+- Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name; schema done. To be renamed `MediumComponent` (adding `pon`) for GrowingMedium.
 - Group design agreed (see Data model).
 - Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
-- Next: SoilMix, then Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.
+- Next: GrowingMedium, then Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.
