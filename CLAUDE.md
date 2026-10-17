@@ -20,7 +20,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 ## Product principles
 
 - Products and plans first; individual plant profiles are optional and out of the MVP.
-- Plans attach to groups (usually a genus; variegated plants get their own group).
+- Plans attach to groups. A group is whatever set of plants the user cares for the same way, not a fixed taxonomy level: one genus, several genera, or a family. Variegated plants usually get their own group because they are fed more weakly, but the user decides.
 - Logging takes one or two steps.
 - Plans and history are separate: editing a plan never changes past logs.
 - Product label data is shared and non-personal; personal plans and logs are the only private data (data minimization).
@@ -29,7 +29,13 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 ## Data model
 
 - **Product**: brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), label directions (dose per volume of water, frequency, and a `use` name when there are several), notes. Shared across users.
-- **Group**: name, genus, variegated flag, soil mix (components with parts). No list of individual plants.
+- **Group**: name (unique ignoring case; the UI pre-fills it from the chosen taxa and variegation, and the user may edit it), one or more taxa (genus or family, from the reference list or `other`), variegation (`none` / `variegated` / `mixed`), an optional soil mix, notes. No list of individual plants.
+  - Why not one group per genus or family: care dimensions group differently. Aroids (Monstera, Philodendron, Anthurium) share a soil mix, but Philodendron and Anthurium want more humidity than Monstera and pothos.
+- **SoilMix**: name (unique), components with parts (a fixed list of ids plus `other` with a name). Defined once and shared by any number of groups, the way plans share products.
+  - Each component appears at most once per mix; `other` names are compared case-insensitively and may not repeat a listed id (use the listed id instead).
+- **Taxa reference list** (planned: `backend/data/taxa.json`, reference data versioned in git like the old plant library): genera and families with each genus's family, aliases, and common names (en / zh). The user picks a genus by its scientific or common name and the family follows, so nobody needs to know families. The app may suggest an existing group with the same family, but never assigns a group by itself (same family does not mean same care).
+  - Genera whose names changed recently keep the familiar name as the entry and list the new name as an alias (Calathea / Goeppertia, Sansevieria / Dracaena, Saintpaulia / Streptocarpus, Schefflera arboricola / Heptapleurum).
+  - Family per genus is checked against a taxonomic database (GBIF) and candidate genera come from extension houseplant lists; every entry needs a source.
 - **CarePlan**: belongs to a group; product, dose (amount per volume of water), trigger, status (active, paused, archived).
   - Trigger is either `interval` (every N days; shows in Upcoming) or an event such as `repot` (shown when that event is logged).
   - A group can have several plans, e.g., a routine fertilizer plus a repotting fertilizer.
@@ -86,5 +92,6 @@ AI features, in order, after the core works:
   - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with CHECK constraints mirroring the schema.
   - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
-- Soil components (for group soil mixes) are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
-- Next: Groups (schema, tables, API), then CarePlans.
+- Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name; schema done, used by SoilMix.
+- Group design agreed (see Data model). The taxa list is drafted and under review: families checked with GBIF; Goeppertia, Streptocarpus, Fittonia, Cryptanthus, and Schlumbergera still need a source.
+- Next: taxa reference list (with common names), then SoilMix, then Groups (schema, tables, API), then CarePlans.

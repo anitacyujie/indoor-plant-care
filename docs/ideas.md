@@ -29,6 +29,16 @@ The schema only rejects impossible NPK values (each 0-100). Values that are poss
 
 ## User features
 
+### Environment conditions per group (e.g., humidity)
+Plants in the same family can need different humidity (Philodendron and Anthurium more than Monstera and pothos), which is one reason groups are defined by care rather than taxonomy. Plans and logs cover care actions (fertilize, repot, water), not conditions.
+- **Idea:** a target humidity range (and maybe light) on each group, shown alongside its plans.
+- **When:** after the core works.
+
+### Copy a group
+Create "Variegated aroids" from "Aroids" with the same taxa, soil mix, and plans, then lower the fertilizer dose.
+- **Depends on:** CarePlans.
+
+
 ### Plant experiments (citizen science)
 Users run controlled experiments with their own plants, e.g. two plants of the same cultivar, same spot, different fertilizer, and record the results over time.
 - **Experiment design guidance:** same cultivar and size, same location, change one variable only.
