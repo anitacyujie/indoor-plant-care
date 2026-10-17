@@ -3,7 +3,10 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Integer, TypeDecorator
+from sqlalchemy import CheckConstraint, DateTime, Index, Integer, TypeDecorator, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database import Base
 
 
 class UtcDateTime(TypeDecorator):
@@ -55,3 +58,61 @@ class HundredthsDecimal(TypeDecorator):
 
     def process_result_value(self, value: int | None, dialect) -> Decimal | None:
         return None if value is None else Decimal(value) / 100
+
+
+class Product(Base):
+    """A care product as described by its label; shared, not personal data.
+
+    The main rules are also checked in Pydantic, but the database repeats the
+    single-row ones so data written by any other path (scripts, imports)
+    cannot break them either.
+    """
+
+    __tablename__ = "products"
+    __table_args__ = (
+        CheckConstraint("length(trim(brand)) > 0", name="brand_not_blank"),
+        CheckConstraint("length(trim(name)) > 0", name="name_not_blank"),
+        CheckConstraint(
+            "type IN ('liquid_fertilizer', 'soluble_powder', 'additive')",
+            name="valid_type",
+        ),
+        CheckConstraint("npk_basis IN ('oxide', 'elemental')", name="valid_npk_basis"),
+        # NPK is all four columns or none (an additive may have no NPK).
+        CheckConstraint(
+            "(npk_n IS NULL) = (npk_p IS NULL)"
+            " AND (npk_n IS NULL) = (npk_k IS NULL)"
+            " AND (npk_n IS NULL) = (npk_basis IS NULL)",
+            name="npk_all_or_none",
+        ),
+        # Stored in hundredths, so 0-100 % is 0-10000.
+        CheckConstraint(
+            "npk_n BETWEEN 0 AND 10000"
+            " AND npk_p BETWEEN 0 AND 10000"
+            " AND npk_k BETWEEN 0 AND 10000",
+            name="npk_in_range",
+        ),
+        CheckConstraint(
+            "type = 'additive' OR npk_n IS NOT NULL", name="fertilizer_has_npk"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    brand: Mapped[str]
+    name: Mapped[str]
+    type: Mapped[str]
+    npk_n: Mapped[Decimal | None] = mapped_column(HundredthsDecimal)
+    npk_p: Mapped[Decimal | None] = mapped_column(HundredthsDecimal)
+    npk_k: Mapped[Decimal | None] = mapped_column(HundredthsDecimal)
+    npk_basis: Mapped[str | None]
+    notes: Mapped[str] = mapped_column(default="")
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utc_now)
+
+
+# One row per product, ignoring case: "Dyna-Gro Foliage-Pro" and
+# "dyna-gro foliage-pro" are the same product entered twice.
+Index(
+    "uq_products_brand_name",
+    func.lower(Product.brand),
+    func.lower(Product.name),
+    unique=True,
+)
