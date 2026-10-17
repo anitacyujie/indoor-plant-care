@@ -1,0 +1,1645 @@
+{
+  "sources": [
+    {
+      "id": "illinois-extension",
+      "title": "Illinois Extension: Houseplant Varieties",
+      "url": "https://extension.illinois.edu/houseplants/varieties"
+    },
+    {
+      "id": "nebguide-g837",
+      "title": "UNL NebGuide G837: Guide to Selecting Houseplants (rev. 2007)",
+      "url": "https://extensionpubs.unl.edu/publication/g837/na/pdf/view"
+    },
+    {
+      "id": "ngb-2025",
+      "title": "Greenhouse Grower: National Garden Bureau 2025 'Year of the' lineup (Monstera)",
+      "url": "https://www.greenhousegrower.com/crops/national-garden-bureau-announces-2025-year-of-the-crop-lineup/"
+    },
+    {
+      "id": "ngb-2026",
+      "title": "Greenhouse Grower: National Garden Bureau 2026 'Year of the' crops (Ficus)",
+      "url": "https://www.greenhousegrower.com/?p=175570"
+    },
+    {
+      "id": "rubyhome-2022",
+      "title": "Greenhouse Grower: Top 10 most Instagrammable plants (RubyHome hashtag counts, 2022)",
+      "url": "https://www.greenhousegrower.com/crops/ornamentals/instagood-what-are-the-top-10-most-instagrammable-plants-right-now/"
+    },
+    {
+      "id": "love-that-leaf-2025",
+      "title": "Love That Leaf (NZ retailer): 2025 houseplant trends",
+      "url": "https://www.lovethatleaf.co.nz/blogs/plant-care-guides/2025-houseplant-trends-trending-indoor-plants"
+    },
+    {
+      "id": "city-floral-2025",
+      "title": "City Floral Garden Center (Denver): Houseplant trends for 2025",
+      "url": "https://cityfloralgreenhouse.com/2025/01/houseplant-trends-for-2025/"
+    },
+    {
+      "id": "living-etc-2025",
+      "title": "Living Etc: Most popular houseplants of 2025",
+      "url": "https://www.livingetc.com/advice/most-loved-houseplants-of-2025"
+    },
+    {
+      "id": "ncsu-alocasia",
+      "title": "NC Extension Gardener Plant Toolbox: Alocasia",
+      "url": "https://plants.ces.ncsu.edu/plants/alocasia/"
+    },
+    {
+      "id": "ncsu-dendrobium",
+      "title": "NC Extension Gardener Plant Toolbox: Dendrobium",
+      "url": "https://plants.ces.ncsu.edu/plants/dendrobium/"
+    },
+    {
+      "id": "ncsu-pachira",
+      "title": "NC Extension Gardener Plant Toolbox: Pachira aquatica",
+      "url": "https://plants.ces.ncsu.edu/plants/pachira-aquatica/"
+    },
+    {
+      "id": "ncsu-rhaphidophora",
+      "title": "NC Extension Gardener Plant Toolbox: Rhaphidophora tetrasperma",
+      "url": "https://plants.ces.ncsu.edu/plants/rhaphidophora-tetrasperma/"
+    },
+    {
+      "id": "ncsu-scindapsus",
+      "title": "NC Extension Gardener Plant Toolbox: Scindapsus pictus",
+      "url": "https://plants.ces.ncsu.edu/plants/scindapsus-pictus/"
+    },
+    {
+      "id": "ncsu-strelitzia",
+      "title": "NC Extension Gardener Plant Toolbox: Strelitzia reginae",
+      "url": "https://plants.ces.ncsu.edu/plants/strelitzia-reginae/"
+    },
+    {
+      "id": "ncsu-stromanthe",
+      "title": "NC Extension Gardener Plant Toolbox: Stromanthe thalia",
+      "url": "https://plants.ces.ncsu.edu/plants/stromanthe-sanguinea/"
+    },
+    {
+      "id": "gbif",
+      "title": "GBIF Backbone Taxonomy (family of each genus)",
+      "url": "https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+    }
+  ],
+  "families": [
+    {
+      "id": "acanthaceae",
+      "name": "Acanthaceae",
+      "common_names": {
+        "zh": [
+          "爵床科"
+        ]
+      }
+    },
+    {
+      "id": "aizoaceae",
+      "name": "Aizoaceae",
+      "common_names": {
+        "zh": [
+          "番杏科"
+        ]
+      }
+    },
+    {
+      "id": "apocynaceae",
+      "name": "Apocynaceae",
+      "common_names": {
+        "zh": [
+          "夹竹桃科"
+        ]
+      }
+    },
+    {
+      "id": "araceae",
+      "name": "Araceae",
+      "common_names": {
+        "zh": [
+          "天南星科"
+        ]
+      }
+    },
+    {
+      "id": "araliaceae",
+      "name": "Araliaceae",
+      "common_names": {
+        "zh": [
+          "五加科"
+        ]
+      }
+    },
+    {
+      "id": "araucariaceae",
+      "name": "Araucariaceae",
+      "common_names": {
+        "zh": [
+          "南洋杉科"
+        ]
+      }
+    },
+    {
+      "id": "arecaceae",
+      "name": "Arecaceae",
+      "common_names": {
+        "zh": [
+          "棕榈科"
+        ]
+      }
+    },
+    {
+      "id": "asparagaceae",
+      "name": "Asparagaceae",
+      "common_names": {
+        "zh": [
+          "天门冬科"
+        ]
+      }
+    },
+    {
+      "id": "asphodelaceae",
+      "name": "Asphodelaceae",
+      "common_names": {
+        "zh": [
+          "阿福花科"
+        ]
+      }
+    },
+    {
+      "id": "aspleniaceae",
+      "name": "Aspleniaceae",
+      "common_names": {
+        "zh": [
+          "铁角蕨科"
+        ]
+      }
+    },
+    {
+      "id": "asteraceae",
+      "name": "Asteraceae",
+      "common_names": {
+        "zh": [
+          "菊科"
+        ]
+      }
+    },
+    {
+      "id": "begoniaceae",
+      "name": "Begoniaceae",
+      "common_names": {
+        "zh": [
+          "秋海棠科"
+        ]
+      }
+    },
+    {
+      "id": "bromeliaceae",
+      "name": "Bromeliaceae",
+      "common_names": {
+        "zh": [
+          "凤梨科"
+        ]
+      }
+    },
+    {
+      "id": "cactaceae",
+      "name": "Cactaceae",
+      "common_names": {
+        "zh": [
+          "仙人掌科"
+        ]
+      }
+    },
+    {
+      "id": "commelinaceae",
+      "name": "Commelinaceae",
+      "common_names": {
+        "zh": [
+          "鸭跖草科"
+        ]
+      }
+    },
+    {
+      "id": "crassulaceae",
+      "name": "Crassulaceae",
+      "common_names": {
+        "zh": [
+          "景天科"
+        ]
+      }
+    },
+    {
+      "id": "droseraceae",
+      "name": "Droseraceae",
+      "common_names": {
+        "zh": [
+          "茅膏菜科"
+        ]
+      }
+    },
+    {
+      "id": "euphorbiaceae",
+      "name": "Euphorbiaceae",
+      "common_names": {
+        "zh": [
+          "大戟科"
+        ]
+      }
+    },
+    {
+      "id": "gesneriaceae",
+      "name": "Gesneriaceae",
+      "common_names": {
+        "zh": [
+          "苦苣苔科"
+        ]
+      }
+    },
+    {
+      "id": "malvaceae",
+      "name": "Malvaceae",
+      "common_names": {
+        "zh": [
+          "锦葵科"
+        ]
+      }
+    },
+    {
+      "id": "marantaceae",
+      "name": "Marantaceae",
+      "common_names": {
+        "zh": [
+          "竹芋科"
+        ]
+      }
+    },
+    {
+      "id": "moraceae",
+      "name": "Moraceae",
+      "common_names": {
+        "zh": [
+          "桑科"
+        ]
+      }
+    },
+    {
+      "id": "nephrolepidaceae",
+      "name": "Nephrolepidaceae",
+      "common_names": {
+        "zh": [
+          "肾蕨科"
+        ]
+      }
+    },
+    {
+      "id": "orchidaceae",
+      "name": "Orchidaceae",
+      "common_names": {
+        "zh": [
+          "兰科"
+        ]
+      }
+    },
+    {
+      "id": "piperaceae",
+      "name": "Piperaceae",
+      "common_names": {
+        "zh": [
+          "胡椒科"
+        ]
+      }
+    },
+    {
+      "id": "polypodiaceae",
+      "name": "Polypodiaceae",
+      "common_names": {
+        "zh": [
+          "水龙骨科"
+        ]
+      }
+    },
+    {
+      "id": "pteridaceae",
+      "name": "Pteridaceae",
+      "common_names": {
+        "zh": [
+          "凤尾蕨科"
+        ]
+      }
+    },
+    {
+      "id": "rutaceae",
+      "name": "Rutaceae",
+      "common_names": {
+        "zh": [
+          "芸香科"
+        ]
+      }
+    },
+    {
+      "id": "strelitziaceae",
+      "name": "Strelitziaceae",
+      "common_names": {
+        "zh": [
+          "鹤望兰科"
+        ]
+      }
+    },
+    {
+      "id": "urticaceae",
+      "name": "Urticaceae",
+      "common_names": {
+        "zh": [
+          "荨麻科"
+        ]
+      }
+    },
+    {
+      "id": "vitaceae",
+      "name": "Vitaceae",
+      "common_names": {
+        "zh": [
+          "葡萄科"
+        ]
+      }
+    }
+  ],
+  "genera": [
+    {
+      "id": "adiantum",
+      "name": "Adiantum",
+      "family": "pteridaceae",
+      "common_names": {
+        "en": [
+          "maidenhair fern"
+        ],
+        "zh": [
+          "铁线蕨"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "aechmea",
+      "name": "Aechmea",
+      "family": "bromeliaceae",
+      "common_names": {
+        "en": [
+          "living vase"
+        ],
+        "zh": [
+          "蜻蜓凤梨",
+          "光萼荷"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "agave",
+      "name": "Agave",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "agave"
+        ],
+        "zh": [
+          "龙舌兰"
+        ]
+      },
+      "source_ids": [
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "aglaonema",
+      "name": "Aglaonema",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "Chinese evergreen"
+        ],
+        "zh": [
+          "粗肋草",
+          "广东万年青"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "alocasia",
+      "name": "Alocasia",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "elephant ear"
+        ],
+        "zh": [
+          "海芋",
+          "观音莲"
+        ]
+      },
+      "source_ids": [
+        "ncsu-alocasia"
+      ]
+    },
+    {
+      "id": "aloe",
+      "name": "Aloe",
+      "family": "asphodelaceae",
+      "common_names": {
+        "en": [
+          "aloe"
+        ],
+        "zh": [
+          "芦荟"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "anthurium",
+      "name": "Anthurium",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "anthurium",
+          "flamingo flower"
+        ],
+        "zh": [
+          "花烛",
+          "红掌"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "aphelandra",
+      "name": "Aphelandra",
+      "family": "acanthaceae",
+      "common_names": {
+        "en": [
+          "zebra plant"
+        ],
+        "zh": [
+          "单药花",
+          "斑马爵床"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "araucaria",
+      "name": "Araucaria",
+      "family": "araucariaceae",
+      "common_names": {
+        "en": [
+          "Norfolk Island pine"
+        ],
+        "zh": [
+          "南洋杉"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "aspidistra",
+      "name": "Aspidistra",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "cast iron plant"
+        ],
+        "zh": [
+          "蜘蛛抱蛋",
+          "一叶兰"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "asplenium",
+      "name": "Asplenium",
+      "family": "aspleniaceae",
+      "common_names": {
+        "en": [
+          "bird's nest fern"
+        ],
+        "zh": [
+          "鸟巢蕨"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "beaucarnea",
+      "name": "Beaucarnea",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "ponytail palm"
+        ],
+        "zh": [
+          "酒瓶兰"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "begonia",
+      "name": "Begonia",
+      "family": "begoniaceae",
+      "common_names": {
+        "en": [
+          "begonia"
+        ],
+        "zh": [
+          "秋海棠"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "calathea",
+      "name": "Calathea",
+      "family": "marantaceae",
+      "aliases": [
+        "Goeppertia"
+      ],
+      "common_names": {
+        "en": [
+          "calathea",
+          "peacock plant"
+        ],
+        "zh": [
+          "肖竹芋",
+          "孔雀竹芋"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "living-etc-2025"
+      ]
+    },
+    {
+      "id": "cattleya",
+      "name": "Cattleya",
+      "family": "orchidaceae",
+      "common_names": {
+        "en": [
+          "cattleya"
+        ],
+        "zh": [
+          "卡特兰"
+        ]
+      },
+      "source_ids": [
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "ceropegia",
+      "name": "Ceropegia",
+      "family": "apocynaceae",
+      "common_names": {
+        "en": [
+          "string of hearts",
+          "chain of hearts"
+        ],
+        "zh": [
+          "吊金钱",
+          "爱之蔓"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "chamaedorea",
+      "name": "Chamaedorea",
+      "family": "arecaceae",
+      "common_names": {
+        "en": [
+          "parlor palm",
+          "bamboo palm"
+        ],
+        "zh": [
+          "袖珍椰子"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "chlorophytum",
+      "name": "Chlorophytum",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "spider plant"
+        ],
+        "zh": [
+          "吊兰"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "cissus",
+      "name": "Cissus",
+      "family": "vitaceae",
+      "common_names": {
+        "en": [
+          "grape ivy"
+        ],
+        "zh": [
+          "白粉藤"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "citrus",
+      "name": "Citrus",
+      "family": "rutaceae",
+      "common_names": {
+        "en": [
+          "citrus"
+        ],
+        "zh": [
+          "柑橘"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "codiaeum",
+      "name": "Codiaeum",
+      "family": "euphorbiaceae",
+      "common_names": {
+        "en": [
+          "croton"
+        ],
+        "zh": [
+          "变叶木"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "cordyline",
+      "name": "Cordyline",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "ti plant"
+        ],
+        "zh": [
+          "朱蕉"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "crassula",
+      "name": "Crassula",
+      "family": "crassulaceae",
+      "common_names": {
+        "en": [
+          "jade plant"
+        ],
+        "zh": [
+          "青锁龙",
+          "燕子掌"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "cryptanthus",
+      "name": "Cryptanthus",
+      "family": "bromeliaceae",
+      "common_names": {
+        "en": [
+          "earth star"
+        ],
+        "zh": [
+          "姬凤梨"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "cymbidium",
+      "name": "Cymbidium",
+      "family": "orchidaceae",
+      "common_names": {
+        "en": [
+          "cymbidium"
+        ],
+        "zh": [
+          "兰花",
+          "大花蕙兰"
+        ]
+      },
+      "source_ids": [
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "dendrobium",
+      "name": "Dendrobium",
+      "family": "orchidaceae",
+      "common_names": {
+        "en": [
+          "dendrobium"
+        ],
+        "zh": [
+          "石斛"
+        ]
+      },
+      "source_ids": [
+        "ncsu-dendrobium"
+      ]
+    },
+    {
+      "id": "dieffenbachia",
+      "name": "Dieffenbachia",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "dumb cane"
+        ],
+        "zh": [
+          "花叶万年青",
+          "黛粉芋"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "dionaea",
+      "name": "Dionaea",
+      "family": "droseraceae",
+      "common_names": {
+        "en": [
+          "Venus flytrap"
+        ],
+        "zh": [
+          "捕蝇草"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "dischidia",
+      "name": "Dischidia",
+      "family": "apocynaceae",
+      "common_names": {
+        "en": [
+          "million hearts",
+          "string of nickels"
+        ],
+        "zh": [
+          "眼树莲",
+          "青蛙藤"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "dracaena",
+      "name": "Dracaena",
+      "family": "asparagaceae",
+      "common_names": {
+        "en": [
+          "dracaena",
+          "dragon lily"
+        ],
+        "zh": [
+          "龙血树",
+          "巴西木"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "epipremnum",
+      "name": "Epipremnum",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "pothos"
+        ],
+        "zh": [
+          "绿萝"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "episcia",
+      "name": "Episcia",
+      "family": "gesneriaceae",
+      "common_names": {
+        "en": [
+          "flame violet"
+        ],
+        "zh": [
+          "喜荫花"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "euphorbia",
+      "name": "Euphorbia",
+      "family": "euphorbiaceae",
+      "common_names": {
+        "en": [
+          "crown of thorns",
+          "spurge"
+        ],
+        "zh": [
+          "大戟",
+          "虎刺梅"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "ficus",
+      "name": "Ficus",
+      "family": "moraceae",
+      "common_names": {
+        "en": [
+          "fig",
+          "rubber plant"
+        ],
+        "zh": [
+          "榕",
+          "橡皮树",
+          "琴叶榕"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "ngb-2026"
+      ]
+    },
+    {
+      "id": "fittonia",
+      "name": "Fittonia",
+      "family": "acanthaceae",
+      "common_names": {
+        "en": [
+          "nerve plant"
+        ],
+        "zh": [
+          "网纹草"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "haworthia",
+      "name": "Haworthia",
+      "family": "asphodelaceae",
+      "aliases": [
+        "Haworthiopsis"
+      ],
+      "common_names": {
+        "en": [
+          "haworthia"
+        ],
+        "zh": [
+          "十二卷",
+          "瓦苇"
+        ]
+      },
+      "source_ids": [
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "hedera",
+      "name": "Hedera",
+      "family": "araliaceae",
+      "common_names": {
+        "en": [
+          "English ivy"
+        ],
+        "zh": [
+          "常春藤"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "howea",
+      "name": "Howea",
+      "family": "arecaceae",
+      "common_names": {
+        "en": [
+          "kentia palm"
+        ],
+        "zh": [
+          "荷威椰子"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "hoya",
+      "name": "Hoya",
+      "family": "apocynaceae",
+      "common_names": {
+        "en": [
+          "wax plant"
+        ],
+        "zh": [
+          "球兰"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "rubyhome-2022",
+        "love-that-leaf-2025",
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "kalanchoe",
+      "name": "Kalanchoe",
+      "family": "crassulaceae",
+      "common_names": {
+        "en": [
+          "kalanchoe"
+        ],
+        "zh": [
+          "伽蓝菜",
+          "长寿花"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "lithops",
+      "name": "Lithops",
+      "family": "aizoaceae",
+      "common_names": {
+        "en": [
+          "living stones"
+        ],
+        "zh": [
+          "生石花"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "mammillaria",
+      "name": "Mammillaria",
+      "family": "cactaceae",
+      "common_names": {
+        "en": [
+          "pincushion cactus"
+        ],
+        "zh": [
+          "乳突球"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "maranta",
+      "name": "Maranta",
+      "family": "marantaceae",
+      "common_names": {
+        "en": [
+          "prayer plant"
+        ],
+        "zh": [
+          "竹芋"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "miltonia",
+      "name": "Miltonia",
+      "family": "orchidaceae",
+      "common_names": {
+        "en": [
+          "pansy orchid"
+        ],
+        "zh": [
+          "堇花兰"
+        ]
+      },
+      "source_ids": [
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "monstera",
+      "name": "Monstera",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "monstera",
+          "Swiss cheese plant"
+        ],
+        "zh": [
+          "龟背竹"
+        ]
+      },
+      "source_ids": [
+        "ngb-2025",
+        "living-etc-2025",
+        "love-that-leaf-2025",
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "nephrolepis",
+      "name": "Nephrolepis",
+      "family": "nephrolepidaceae",
+      "common_names": {
+        "en": [
+          "Boston fern",
+          "sword fern"
+        ],
+        "zh": [
+          "肾蕨"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "opuntia",
+      "name": "Opuntia",
+      "family": "cactaceae",
+      "common_names": {
+        "en": [
+          "prickly pear"
+        ],
+        "zh": [
+          "仙人掌",
+          "团扇仙人掌"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "pachira",
+      "name": "Pachira",
+      "family": "malvaceae",
+      "common_names": {
+        "en": [
+          "money tree"
+        ],
+        "zh": [
+          "发财树",
+          "瓜栗"
+        ]
+      },
+      "source_ids": [
+        "ncsu-pachira"
+      ]
+    },
+    {
+      "id": "pellaea",
+      "name": "Pellaea",
+      "family": "pteridaceae",
+      "common_names": {
+        "en": [
+          "button fern"
+        ],
+        "zh": [
+          "纽扣蕨"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "peperomia",
+      "name": "Peperomia",
+      "family": "piperaceae",
+      "common_names": {
+        "en": [
+          "peperomia"
+        ],
+        "zh": [
+          "椒草",
+          "豆瓣绿"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "phalaenopsis",
+      "name": "Phalaenopsis",
+      "family": "orchidaceae",
+      "common_names": {
+        "en": [
+          "moth orchid"
+        ],
+        "zh": [
+          "蝴蝶兰"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "philodendron",
+      "name": "Philodendron",
+      "family": "araceae",
+      "aliases": [
+        "Thaumatophyllum"
+      ],
+      "common_names": {
+        "en": [
+          "philodendron"
+        ],
+        "zh": [
+          "喜林芋",
+          "蔓绿绒",
+          "春羽"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "pilea",
+      "name": "Pilea",
+      "family": "urticaceae",
+      "common_names": {
+        "en": [
+          "aluminum plant"
+        ],
+        "zh": [
+          "冷水花",
+          "镜面草"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "platycerium",
+      "name": "Platycerium",
+      "family": "polypodiaceae",
+      "common_names": {
+        "en": [
+          "staghorn fern"
+        ],
+        "zh": [
+          "鹿角蕨"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "rhaphidophora",
+      "name": "Rhaphidophora",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "mini monstera"
+        ],
+        "zh": [
+          "迷你龟背"
+        ]
+      },
+      "source_ids": [
+        "ncsu-rhaphidophora"
+      ]
+    },
+    {
+      "id": "rhapis",
+      "name": "Rhapis",
+      "family": "arecaceae",
+      "common_names": {
+        "en": [
+          "lady palm"
+        ],
+        "zh": [
+          "棕竹"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "saintpaulia",
+      "name": "Saintpaulia",
+      "family": "gesneriaceae",
+      "aliases": [
+        "Streptocarpus"
+      ],
+      "common_names": {
+        "en": [
+          "African violet"
+        ],
+        "zh": [
+          "非洲紫罗兰"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "sansevieria",
+      "name": "Sansevieria",
+      "family": "asparagaceae",
+      "aliases": [
+        "Dracaena"
+      ],
+      "common_names": {
+        "en": [
+          "snake plant",
+          "mother-in-law's tongue"
+        ],
+        "zh": [
+          "虎尾兰"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837",
+        "rubyhome-2022",
+        "love-that-leaf-2025",
+        "city-floral-2025"
+      ]
+    },
+    {
+      "id": "schefflera",
+      "name": "Schefflera",
+      "family": "araliaceae",
+      "aliases": [
+        "Heptapleurum"
+      ],
+      "common_names": {
+        "en": [
+          "schefflera",
+          "umbrella tree"
+        ],
+        "zh": [
+          "鹅掌柴",
+          "鸭脚木"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "schlumbergera",
+      "name": "Schlumbergera",
+      "family": "cactaceae",
+      "common_names": {
+        "en": [
+          "Christmas cactus"
+        ],
+        "zh": [
+          "蟹爪兰"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "scindapsus",
+      "name": "Scindapsus",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "satin pothos"
+        ],
+        "zh": [
+          "星点藤"
+        ]
+      },
+      "source_ids": [
+        "ncsu-scindapsus"
+      ]
+    },
+    {
+      "id": "sedum",
+      "name": "Sedum",
+      "family": "crassulaceae",
+      "common_names": {
+        "en": [
+          "burro's tail",
+          "stonecrop"
+        ],
+        "zh": [
+          "景天",
+          "玉缀"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "sempervivum",
+      "name": "Sempervivum",
+      "family": "crassulaceae",
+      "common_names": {
+        "en": [
+          "hen and chicks"
+        ],
+        "zh": [
+          "长生草"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "senecio",
+      "name": "Senecio",
+      "family": "asteraceae",
+      "aliases": [
+        "Curio"
+      ],
+      "common_names": {
+        "en": [
+          "string of pearls",
+          "German ivy"
+        ],
+        "zh": [
+          "千里光",
+          "翡翠珠"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837",
+        "rubyhome-2022"
+      ]
+    },
+    {
+      "id": "soleirolia",
+      "name": "Soleirolia",
+      "family": "urticaceae",
+      "common_names": {
+        "en": [
+          "baby's tears"
+        ],
+        "zh": [
+          "金钱麻",
+          "婴儿泪"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "spathiphyllum",
+      "name": "Spathiphyllum",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "peace lily",
+          "white flag"
+        ],
+        "zh": [
+          "白鹤芋",
+          "白掌"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "strelitzia",
+      "name": "Strelitzia",
+      "family": "strelitziaceae",
+      "common_names": {
+        "en": [
+          "bird of paradise"
+        ],
+        "zh": [
+          "鹤望兰",
+          "天堂鸟"
+        ]
+      },
+      "source_ids": [
+        "ncsu-strelitzia"
+      ]
+    },
+    {
+      "id": "stromanthe",
+      "name": "Stromanthe",
+      "family": "marantaceae",
+      "common_names": {
+        "en": [
+          "stromanthe"
+        ],
+        "zh": [
+          "紫背竹芋"
+        ]
+      },
+      "source_ids": [
+        "ncsu-stromanthe"
+      ]
+    },
+    {
+      "id": "syngonium",
+      "name": "Syngonium",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "arrowhead plant",
+          "nephthytis"
+        ],
+        "zh": [
+          "合果芋"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "love-that-leaf-2025"
+      ]
+    },
+    {
+      "id": "tillandsia",
+      "name": "Tillandsia",
+      "family": "bromeliaceae",
+      "common_names": {
+        "en": [
+          "air plant"
+        ],
+        "zh": [
+          "空气凤梨",
+          "铁兰"
+        ]
+      },
+      "source_ids": [
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "tradescantia",
+      "name": "Tradescantia",
+      "family": "commelinaceae",
+      "common_names": {
+        "en": [
+          "inch plant",
+          "wandering Jew"
+        ],
+        "zh": [
+          "紫露草",
+          "吊竹梅"
+        ]
+      },
+      "source_ids": [
+        "illinois-extension",
+        "nebguide-g837"
+      ]
+    },
+    {
+      "id": "zamioculcas",
+      "name": "Zamioculcas",
+      "family": "araceae",
+      "common_names": {
+        "en": [
+          "ZZ plant"
+        ],
+        "zh": [
+          "雪铁芋",
+          "金钱树"
+        ]
+      },
+      "source_ids": [
+        "love-that-leaf-2025",
+        "city-floral-2025"
+      ]
+    }
+  ]
+}

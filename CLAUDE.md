@@ -33,7 +33,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
   - Why not one group per genus or family: care dimensions group differently. Aroids (Monstera, Philodendron, Anthurium) share a soil mix, but Philodendron and Anthurium want more humidity than Monstera and pothos.
 - **SoilMix**: name (unique), components with parts (a fixed list of ids plus `other` with a name). Defined once and shared by any number of groups, the way plans share products.
   - Each component appears at most once per mix; `other` names are compared case-insensitively and may not repeat a listed id (use the listed id instead).
-- **Taxa reference list** (planned: `backend/data/taxa.json`, reference data versioned in git like the old plant library): genera and families with each genus's family, aliases, and common names (en / zh). The user picks a genus by its scientific or common name and the family follows, so nobody needs to know families. The app may suggest an existing group with the same family, but never assigns a group by itself (same family does not mean same care).
+- **Taxa reference list** (`backend/data/taxa.json`, reference data versioned in git, not in the database; loaded and validated once at startup): genera and families with each genus's family, aliases, and common names (en / zh). The user picks a genus by its scientific or common name and the family follows, so nobody needs to know families. The app may suggest an existing group with the same family, but never assigns a group by itself (same family does not mean same care).
   - Genera whose names changed recently keep the familiar name as the entry and list the new name as an alias (Calathea / Goeppertia, Sansevieria / Dracaena, Saintpaulia / Streptocarpus, Schefflera arboricola / Heptapleurum).
   - Family per genus is checked against a taxonomic database (GBIF) and candidate genera come from extension houseplant lists; every entry needs a source.
 - **CarePlan**: belongs to a group; product, dose (amount per volume of water), trigger, status (active, paused, archived).
@@ -52,6 +52,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 - Deletes cascade from parent to child only (a product takes its label directions with it; deleting a direction keeps the product).
 - When replacing child rows that have unique constraints, delete the old rows and flush before adding new ones and before changing other fields: a flush inserts before it deletes, and an early flush would also send field updates outside the caller's conflict handling.
 - Every rule is checked by a targeted mutation (break the code, confirm the test for that rule fails, restore). Mutants that change no behavior are noted as equivalent rather than "fixed" with tests.
+- Taxa ids are never removed or renamed once released: groups refer to them and the database cannot enforce it (no foreign key). A renamed genus keeps its entry and gets the new name as an alias. Keep families and genera sorted by name.
 - Deferred ideas: `docs/ideas.md`.
 
 ## Tech stack
@@ -93,5 +94,6 @@ AI features, in order, after the core works:
   - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
 - Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name; schema done, used by SoilMix.
-- Group design agreed (see Data model). The taxa list is drafted and under review: families checked with GBIF; Goeppertia, Streptocarpus, Fittonia, Cryptanthus, and Schlumbergera still need a source.
-- Next: taxa reference list (with common names), then SoilMix, then Groups (schema, tables, API), then CarePlans.
+- Group design agreed (see Data model).
+- Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
+- Next: SoilMix, then Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.
