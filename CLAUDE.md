@@ -89,4 +89,5 @@ AI features, in order, after the core works:
 - Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When group soil mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
 - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
 - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with tests and mutation checks.
-- Next: Product API endpoints.
+- Product API: `POST /products` (201, 409 on duplicate brand + name), `GET /products`, `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
+- Next: Groups (schema, tables, API), then CarePlans.

@@ -27,8 +27,20 @@ def fill_product(product: Product, data: ProductCreate) -> Product:
     """Write data into product, replacing all of its label directions.
 
     Used for both create (a new Product) and update (an existing one).
-    Replaced directions are deleted on commit (delete-orphan).
+    On update this flushes: the old directions are deleted in the open
+    transaction, so the caller must commit or roll back afterwards.
     """
+    # On update, delete the old directions before adding the new ones. A
+    # flush otherwise inserts before it deletes, so a direction that keeps
+    # its use or position would collide with the row it replaces under the
+    # unique indexes. This runs before any field changes, so the flush sends
+    # only the deletes; a duplicate brand and name then fails at commit,
+    # where the caller turns it into 409.
+    session = object_session(product)
+    if session is not None and product.label_directions:
+        product.label_directions.clear()
+        session.flush()
+
     product.brand = data.brand
     product.name = data.name
     product.type = data.type
@@ -39,15 +51,6 @@ def fill_product(product: Product, data: ProductCreate) -> Product:
     product.npk_p = npk.p if npk else None
     product.npk_k = npk.k if npk else None
     product.npk_basis = npk.basis if npk else None
-
-    # On update, delete the old directions before adding the new ones. A
-    # flush otherwise inserts before it deletes, so a direction that keeps
-    # its use or position would collide with the row it replaces under the
-    # unique indexes.
-    session = object_session(product)
-    if session is not None and product.label_directions:
-        product.label_directions.clear()
-        session.flush()
 
     product.label_directions = [
         direction_to_row(direction, position)
@@ -136,10 +139,29 @@ def list_products(session: SessionDep) -> list[ProductRead]:
 
 @router.get("/{product_id}")
 def get_product(product_id: int, session: SessionDep) -> ProductRead:
+    return product_to_read(get_or_404(session, product_id))
+
+
+@router.put("/{product_id}")
+def replace_product(product_id: int, data: ProductCreate, session: SessionDep) -> ProductRead:
+    """Replace every field and all label directions; id and created_at stay."""
+    product = fill_product(get_or_404(session, product_id), data)
+    commit_or_conflict(session)
+    return product_to_read(product)
+
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(product_id: int, session: SessionDep) -> None:
+    # Its label directions go with it (ON DELETE CASCADE).
+    session.delete(get_or_404(session, product_id))
+    session.commit()
+
+
+def get_or_404(session: Session, product_id: int) -> Product:
     product = session.get(Product, product_id)
     if product is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"Product {product_id} not found")
-    return product_to_read(product)
+    return product
 
 
 def commit_or_conflict(session: Session) -> None:
