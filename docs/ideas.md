@@ -9,6 +9,11 @@ A `soil_components` reference list describing each component's properties: drain
 - **Why:** the UI could explain why a group's soil mix is put together the way it is.
 - **Depends on:** Groups with soil mixes (roadmap step 1).
 
+### Weight or volume basis for liquid concentrations
+Liquid labels may state nutrient percentages by weight (w/w) or by weight per volume (w/v). Australia's labelling code requires w/v for liquids; the EU allows either mass or volume. Add a `concentration_basis` (`w/w` / `w/v`) to `Npk`.
+- **Why:** turning a dose in ml into grams of a nutrient needs w/v, or w/w plus the liquid's density. It does not affect NPK range checks.
+- **When:** when dose math is added (e.g., nutrients delivered per watering).
+
 ## User features
 
 ### Plant experiments (citizen science)
