@@ -84,4 +84,5 @@ AI features, in order, after the core works:
 - Product input schema (`ProductCreate`) with validation tests, each checked by a targeted mutation:
   - NPK as `Decimal` (0-100, at most 2 decimal places) with a required `basis` (`oxide` / `elemental`); the total is not checked, since P and K may be oxide equivalents.
   - Label directions keep dose and frequency together; frequency is `interval` (days) or `every_watering`; several directions each need a distinct `use` (case-insensitive).
+- Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When group soil mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
 - Next: NPK soft warnings (a separate function, thresholds in oxide basis: N > 46, P > 61, K > 63, total > 100, all zero), then the Product table and API endpoints.
