@@ -39,6 +39,8 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 - All Pydantic schemas reject unknown fields (`StrictModel`, `extra="forbid"`), so typos are errors instead of silently ignored data.
 - Datetimes are stored in UTC (`UtcDateTime` rejects naive datetimes).
+- Decimals are stored exactly as integer hundredths (`HundredthsDecimal`), since SQLite stores NUMERIC as floating point.
+- The database repeats single-row rules from the Pydantic schemas as CHECK constraints. In a CHECK, guard nullable columns with `IS NOT NULL`: a NULL result passes the check.
 - SQLite needs `PRAGMA foreign_keys = ON` on every connection for foreign keys and `ON DELETE CASCADE` to work; `create_db_engine` does this.
 - Migrations run by hand (`alembic upgrade head`), never at app startup. Generated migrations must be reviewed; autogenerate does not detect CHECK constraint changes and skips expression indexes (e.g. `lower(brand)`) on SQLite. `test_migrations_match_models_checks_and_indexes` compares both against the models.
 - Deferred ideas: `docs/ideas.md`.
@@ -86,4 +88,5 @@ AI features, in order, after the core works:
   - Label directions keep dose and frequency together; frequency is `interval` (days) or `every_watering`; several directions each need a distinct `use` (case-insensitive).
 - Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When group soil mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
 - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
-- Next: the Product table and API endpoints.
+- Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with tests and mutation checks.
+- Next: Product API endpoints.
