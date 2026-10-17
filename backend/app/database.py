@@ -1,8 +1,9 @@
 import os
+from collections.abc import Iterator
 from pathlib import Path
 
 from sqlalchemy import Engine, create_engine, event
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Session
 
 DEFAULT_DB_PATH = Path(__file__).parent.parent / "plant_care.db"
 DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite:///{DEFAULT_DB_PATH}")
@@ -30,3 +31,12 @@ def create_db_engine(url: str) -> Engine:
 
 
 engine = create_db_engine(DATABASE_URL)
+
+
+def get_session() -> Iterator[Session]:
+    """A FastAPI dependency: one session per request, closed when it ends.
+
+    Tests override this dependency to use a separate database.
+    """
+    with Session(engine) as session:
+        yield session
