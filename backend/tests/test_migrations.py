@@ -5,7 +5,7 @@ from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from sqlalchemy import inspect
+from sqlalchemy import Engine, inspect, text
 
 import app.models  # noqa: F401  registers every table on Base.metadata
 from app import database
@@ -38,6 +38,36 @@ def test_migrations_match_models(engine, alembic_config):
     with engine.connect() as connection:
         diff = compare_metadata(MigrationContext.configure(connection), Base.metadata)
     assert diff == []
+
+
+def checks_and_indexes(engine: Engine) -> tuple[dict, dict]:
+    """CHECK constraints and index definitions, with whitespace normalized.
+
+    compare_metadata skips both on SQLite, so they are compared directly.
+    """
+    inspector = inspect(engine)
+    checks = {
+        (table, check["name"]): " ".join(check["sqltext"].split())
+        for table in inspector.get_table_names()
+        for check in inspector.get_check_constraints(table)
+    }
+    with engine.connect() as connection:
+        rows = connection.execute(
+            # sql is NULL for indexes SQLite creates itself (e.g. for PRIMARY KEY)
+            text("SELECT name, sql FROM sqlite_master WHERE type = 'index' AND sql IS NOT NULL")
+        )
+        indexes = {name: " ".join(sql.split()) for name, sql in rows}
+    return checks, indexes
+
+
+def test_migrations_match_models_checks_and_indexes(engine, alembic_config):
+    command.upgrade(alembic_config, "head")
+    model_engine = create_db_engine("sqlite://")
+    Base.metadata.create_all(model_engine)
+    try:
+        assert checks_and_indexes(engine) == checks_and_indexes(model_engine)
+    finally:
+        model_engine.dispose()
 
 
 def test_downgrade_removes_all_tables(engine, alembic_config):

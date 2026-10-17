@@ -40,7 +40,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 - All Pydantic schemas reject unknown fields (`StrictModel`, `extra="forbid"`), so typos are errors instead of silently ignored data.
 - Datetimes are stored in UTC (`UtcDateTime` rejects naive datetimes).
 - SQLite needs `PRAGMA foreign_keys = ON` on every connection for foreign keys and `ON DELETE CASCADE` to work; `create_db_engine` does this.
-- Migrations run by hand (`alembic upgrade head`), never at app startup. Generated migrations must be reviewed; autogenerate does not detect CHECK constraint changes.
+- Migrations run by hand (`alembic upgrade head`), never at app startup. Generated migrations must be reviewed; autogenerate does not detect CHECK constraint changes and skips expression indexes (e.g. `lower(brand)`) on SQLite. `test_migrations_match_models_checks_and_indexes` compares both against the models.
 - Deferred ideas: `docs/ideas.md`.
 
 ## Tech stack
