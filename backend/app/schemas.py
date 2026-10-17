@@ -1,7 +1,15 @@
+from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PlainSerializer,
+    StringConstraints,
+    model_validator,
+)
 
 
 class StrictModel(BaseModel):
@@ -58,9 +66,19 @@ SoilComponent = Annotated[
 ]
 
 
+def decimal_to_json_number(value: Decimal) -> int | float:
+    """9 -> 9, 0.25 -> 0.25: a JSON number, not Pydantic's default string."""
+    return int(value) if value == value.to_integral_value() else float(value)
+
+
 # Decimal, not float, so values stay exactly as printed (0.2 stays 0.2) and
-# later math on them has no binary rounding error.
-Percent = Annotated[Decimal, Field(ge=0, le=100, decimal_places=2)]
+# later math on them has no binary rounding error. In JSON it is a number:
+# with at most 2 decimal places up to 100, float shows each value exactly.
+Percent = Annotated[
+    Decimal,
+    Field(ge=0, le=100, decimal_places=2),
+    PlainSerializer(decimal_to_json_number, when_used="json"),
+]
 
 # How P and K are printed. The US and Canada use oxides (P2O5, K2O); the EU
 # defaults to oxides but allows elements; Australia uses elements (P, K).
@@ -145,3 +163,10 @@ class ProductCreate(StrictModel):
         if len({use.casefold() for use in uses}) != len(uses):
             raise ValueError("label direction uses must be unique")
         return self
+
+
+class ProductRead(ProductCreate):
+    """A saved product, as the API returns it."""
+
+    id: int
+    created_at: datetime
