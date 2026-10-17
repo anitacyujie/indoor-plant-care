@@ -81,4 +81,7 @@ AI features, in order, after the core works:
   - The `PlantCareGuide` schema (PPFD-based light, window exposures, watering), the JSON plant library in `backend/data/`, and the `/plants` endpoints.
   - The `user_settings`, `my_plants`, and `watering_events` tables. Nothing was ever deployed, so the migration chain was reset instead of adding a migration that drops them.
   - Kept for reuse: `StrictModel`, `NonEmptyStr`, `Slug`, `Days`, `SoilComponent` (for group soil mixes), `create_db_engine`, `UtcDateTime`.
-- Next: Product schema and validation tests, then Product API endpoints.
+- Product input schema (`ProductCreate`) with validation tests, each checked by a targeted mutation:
+  - NPK as `Decimal` (0-100, at most 2 decimal places) with a required `basis` (`oxide` / `elemental`); the total is not checked, since P and K may be oxide equivalents.
+  - Label directions keep dose and frequency together; frequency is `interval` (days) or `every_watering`; several directions each need a distinct `use` (case-insensitive).
+- Next: NPK soft warnings (a separate function, thresholds in oxide basis: N > 46, P > 61, K > 63, total > 100, all zero), then the Product table and API endpoints.
