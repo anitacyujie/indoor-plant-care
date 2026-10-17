@@ -14,6 +14,19 @@ Liquid labels may state nutrient percentages by weight (w/w) or by weight per vo
 - **Why:** turning a dose in ml into grams of a nutrient needs w/v, or w/w plus the liquid's density. It does not affect NPK range checks.
 - **When:** when dose math is added (e.g., nutrients delivered per watering).
 
+## Input checks
+
+### NPK soft warnings
+The schema only rejects impossible NPK values (each 0-100). Values that are possible but unusual should ask the user to confirm instead of being rejected. Write this as a pure function (e.g. `npk_warnings(npk) -> list[str]`), not as a schema rule, since a schema can only accept or reject. Compare in oxide basis, converting elemental values first (EU factors: P = P2O5 × 0.436, K = K2O × 0.830).
+- **Thresholds, each just above the strongest known single material** (sources were read in full):
+  - N > 46: urea is 45-46 (UMD Table B-5, UMass, NMSU A-133). Only anhydrous and aqua ammonia are higher, and they are not used indoors.
+  - P2O5 > 61: water-soluble monoammonium phosphate is 12-61-0 (Haifa MAP).
+  - K2O > 63: potassium chloride is 60-63 (UMD Table B-5).
+  - N + P2O5 + K2O > 100: the highest total found was potassium metaphosphate, 0-59-39 (UMass).
+  - All three are 0 for a fertilizer: probably not filled in.
+- **Limit:** these catch typos like 90 for 9, not "too strong for houseplants"; that needs label data for houseplant products, and no reliable source was found.
+- **When:** after the core API works; the API then returns warnings and saves only after the user confirms.
+
 ## User features
 
 ### Plant experiments (citizen science)
