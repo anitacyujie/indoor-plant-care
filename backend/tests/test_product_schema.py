@@ -275,6 +275,7 @@ def test_use_rejects_blank(product, blank):
         ("label_directions", 0, "note"),  # the old name of "use"
         ("label_directions", 1, "frequency", "unknown_field"),
     ],
+    ids=["top-level", "npk", "direction-old-note", "frequency"],
 )
 def test_unknown_field_rejected(product, path):
     set_field(product, path, "typo or stale field")
