@@ -115,6 +115,18 @@ def test_removing_direction_from_list_deletes_it(session, product):
     assert count_directions(session) == 1
 
 
+# Deletes cascade from product to directions only, never back up.
+def test_deleting_direction_keeps_product(session, product):
+    direction = add_direction(session, product)
+
+    session.delete(direction)
+    session.commit()
+    session.expire_all()
+
+    assert count_directions(session) == 0
+    assert session.get(Product, product.id) is not None
+
+
 # --- required columns
 
 
