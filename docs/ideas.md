@@ -75,3 +75,14 @@ Prefer open-access papers via scholarly APIs (OpenAlex, Semantic Scholar, PubMed
 
 ### Copyright and scraping
 Store facts (numbers, ratios, component names) and write our own descriptions; never copy source text. Respect each site's terms and `robots.txt`, and rate-limit requests.
+
+## API
+
+### Prevent lost updates (optimistic locking)
+PUT replaces a whole resource. If a product is edited in two tabs, the second save silently overwrites the first. Add a version (or `updated_at`) that PUT must send back; on mismatch return 409 and ask the user to reload. Same idea as JPA `@Version`.
+- **When:** with multiple users, or if the frontend makes concurrent edits likely.
+
+### Precise error location for cross-field rules
+Rules that look at a whole list (e.g., "several label directions each need a `use`") report their error at `body`, not at the field. A form cannot highlight the right row.
+- **Idea:** raise the error with a location such as `label_directions[0].use`.
+- **When:** when the frontend shows validation errors per field.
