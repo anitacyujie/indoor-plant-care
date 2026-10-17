@@ -13,7 +13,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 - Before any non-trivial change, propose the approach and wait for approval.
 - After each change, explain what was done and why, so she can defend it in an interview.
 - Keep changes small and focused; one logical change per commit.
-- Testing is the owner's strength: suggest test cases, but let her lead test design.
+- Testing is the owner's strength: she leads test design. Claude drafts tests and, before committing, lists every test with its cases for her review.
 - Never commit secrets. API keys and other config go in `.env` (git-ignored) and are read from environment variables. Keep a `.env.example` with placeholder values.
 - Run tests from `backend/` with the virtual environment active: `python -m pytest -v`.
 
@@ -28,7 +28,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 ## Data model
 
-- **Product**: brand, name, type (e.g., liquid fertilizer, additive), NPK ratio, label dilution, label frequency, notes. Shared across users.
+- **Product**: brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), label directions (dose per volume of water, frequency, and a `use` name when there are several), notes. Shared across users.
 - **Group**: name, genus, variegated flag, soil mix (components with parts). No list of individual plants.
 - **CarePlan**: belongs to a group; product, dose (amount per volume of water), trigger, status (active, paused, archived).
   - Trigger is either `interval` (every N days; shows in Upcoming) or an event such as `repot` (shown when that event is logged).
@@ -43,6 +43,9 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 - The database repeats single-row rules from the Pydantic schemas as CHECK constraints. In a CHECK, guard nullable columns with `IS NOT NULL`: a NULL result passes the check.
 - SQLite needs `PRAGMA foreign_keys = ON` on every connection for foreign keys and `ON DELETE CASCADE` to work; `create_db_engine` does this.
 - Migrations run by hand (`alembic upgrade head`), never at app startup. Generated migrations must be reviewed; autogenerate does not detect CHECK constraint changes and skips expression indexes (e.g. `lower(brand)`) on SQLite. `test_migrations_match_models_checks_and_indexes` compares both against the models.
+- Deletes cascade from parent to child only (a product takes its label directions with it; deleting a direction keeps the product).
+- When replacing child rows that have unique constraints, delete the old rows and flush before adding new ones and before changing other fields: a flush inserts before it deletes, and an early flush would also send field updates outside the caller's conflict handling.
+- Every rule is checked by a targeted mutation (break the code, confirm the test for that rule fails, restore). Mutants that change no behavior are noted as equivalent rather than "fixed" with tests.
 - Deferred ideas: `docs/ideas.md`.
 
 ## Tech stack
@@ -76,18 +79,12 @@ AI features, in order, after the core works:
 ## Current status
 
 - Dev environment ready: Python 3.13, Git, VS Code, Claude Code. Repo: `indoor-plant-care`.
-- FastAPI backend with a `/health` endpoint.
-- pytest set up (`pytest.ini`, shared fixtures in `conftest.py`, parametrized tests).
-- SQLAlchemy and Alembic set up, with tests for `UtcDateTime` and migrations. No tables yet; the migration chain is empty.
-- Code from the previous direction (per-species care guides) was removed:
-  - The `PlantCareGuide` schema (PPFD-based light, window exposures, watering), the JSON plant library in `backend/data/`, and the `/plants` endpoints.
-  - The `user_settings`, `my_plants`, and `watering_events` tables. Nothing was ever deployed, so the migration chain was reset instead of adding a migration that drops them.
-  - Kept for reuse: `StrictModel`, `NonEmptyStr`, `Slug`, `Days`, `SoilComponent` (for group soil mixes), `create_db_engine`, `UtcDateTime`.
-- Product input schema (`ProductCreate`) with validation tests, each checked by a targeted mutation:
-  - NPK as `Decimal` (0-100, at most 2 decimal places) with a required `basis` (`oxide` / `elemental`); the total is not checked, since P and K may be oxide equivalents.
-  - Label directions keep dose and frequency together; frequency is `interval` (days) or `every_watering`; several directions each need a distinct `use` (case-insensitive).
-- Soil components are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When group soil mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
-- NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
-- Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with tests and mutation checks.
-- Product API: `POST /products` (201, 409 on duplicate brand + name), `GET /products`, `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
+- Backend foundation: FastAPI with `/health`; SQLAlchemy and Alembic; `get_session` request dependency; pytest with shared fixtures (`product` data, `session` on an in-memory database, `client` with `get_session` overridden).
+- The previous direction (per-species care guides, per-plant tables) was removed and the migration chain reset, since nothing was ever deployed.
+- **Product: done.**
+  - Schema `ProductCreate` / `ProductRead`: NPK as `Decimal` (0-100, at most 2 decimal places, JSON numbers) with a required `basis`; the total is not checked, since P and K may be oxide equivalents. Frequency is `interval` (days) or `every_watering`. Several label directions each need a distinct `use` (case-insensitive).
+  - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with CHECK constraints mirroring the schema.
+  - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
+  - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
+- Soil components (for group soil mixes) are a fixed list of ids (matched exactly, like an enum) plus `other` with a user-given name. When mixes are added: each component appears at most once per mix, and `other` names are compared case-insensitively.
 - Next: Groups (schema, tables, API), then CarePlans.
