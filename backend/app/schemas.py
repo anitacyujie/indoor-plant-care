@@ -18,9 +18,44 @@ Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
 Days = Annotated[int, Field(gt=0)]
 
 
-class SoilComponent(StrictModel):
-    component: NonEmptyStr
-    parts: int = Field(gt=0)
+# Fixed ids, so the same material is always spelled the same way and can
+# later carry reference data (drainage, aeration, ...).
+SoilComponentId = Literal[
+    "bark",
+    "perlite",
+    "pumice",
+    "coco_coir",
+    "peat",
+    "sphagnum_moss",
+    "charcoal",
+    "worm_castings",
+    "leca",
+    "lava_rock",
+    "akadama",
+    "potting_soil",
+]
+
+# Parts of a mix, e.g. 2 bark : 1 perlite. Shares are computed from parts.
+Parts = Annotated[int, Field(gt=0)]
+
+
+class ListedSoilComponent(StrictModel):
+    component: SoilComponentId
+    parts: Parts
+
+
+class OtherSoilComponent(StrictModel):
+    """A material not in the list, named by the user."""
+
+    component: Literal["other"]
+    name: NonEmptyStr
+    parts: Parts
+
+
+# "component" decides which model applies; only "other" takes a name.
+SoilComponent = Annotated[
+    ListedSoilComponent | OtherSoilComponent, Field(discriminator="component")
+]
 
 
 # Decimal, not float, so values stay exactly as printed (0.2 stays 0.2) and
