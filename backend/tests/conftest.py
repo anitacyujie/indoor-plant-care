@@ -3,9 +3,12 @@
 import copy
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import StaticPool
 
-from app.database import Base, create_db_engine
+from app.database import Base, create_db_engine, get_session
+from app.main import app
 
 # Every value sits well inside its limits (e.g. 9-3-6, far from 0 and 100),
 # so a test can break one rule without another rule rejecting the data first.
@@ -49,4 +52,29 @@ def session():
     Base.metadata.create_all(engine)
     with Session(engine) as session:
         yield session
+    engine.dispose()
+
+
+@pytest.fixture
+def client():
+    """A test client whose requests use a fresh in-memory database.
+
+    An in-memory SQLite database exists only on the connection that made it,
+    and TestClient handles requests in another thread. StaticPool hands
+    every session that one connection, so requests see the tables.
+    """
+    engine = create_db_engine(
+        "sqlite://",
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
+    )
+    Base.metadata.create_all(engine)
+
+    def get_test_session():
+        with Session(engine) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = get_test_session
+    yield TestClient(app)
+    app.dependency_overrides.clear()
     engine.dispose()

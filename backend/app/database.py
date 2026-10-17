@@ -13,13 +13,15 @@ class Base(DeclarativeBase):
     """Parent class of all table models; collects their table definitions."""
 
 
-def create_db_engine(url: str) -> Engine:
+def create_db_engine(url: str, **options) -> Engine:
     """Create an engine that enforces foreign keys on every SQLite connection.
 
     SQLite ignores REFERENCES and ON DELETE CASCADE unless this pragma is
     switched on, and it must be set again for each new connection.
+    options are passed to create_engine (tests use them for a shared
+    in-memory database).
     """
-    engine = create_engine(url)
+    engine = create_engine(url, **options)
 
     @event.listens_for(engine, "connect")
     def enable_foreign_keys(dbapi_connection, connection_record):

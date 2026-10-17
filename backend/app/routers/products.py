@@ -4,8 +4,14 @@ The API nests what the tables keep flat (npk -> four columns, frequency ->
 kind and days), so conversion is written out by hand in both directions.
 """
 
-from sqlalchemy.orm import object_session
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session, object_session, selectinload
+
+from app.database import get_session
 from app.models import Product, ProductLabelDirection
 from app.schemas import (
     EveryWateringFrequency,
@@ -102,3 +108,54 @@ def row_to_direction(row: ProductLabelDirection) -> LabelDirection:
         frequency=frequency,
         use=row.use,
     )
+
+
+router = APIRouter(prefix="/products", tags=["products"])
+
+SessionDep = Annotated[Session, Depends(get_session)]
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_product(data: ProductCreate, session: SessionDep) -> ProductRead:
+    product = fill_product(Product(), data)
+    session.add(product)
+    commit_or_conflict(session)
+    return product_to_read(product)
+
+
+@router.get("")
+def list_products(session: SessionDep) -> list[ProductRead]:
+    products = session.scalars(
+        select(Product)
+        # Load all directions in one extra query, not one query per product.
+        .options(selectinload(Product.label_directions))
+        .order_by(func.lower(Product.brand), func.lower(Product.name))
+    )
+    return [product_to_read(product) for product in products]
+
+
+@router.get("/{product_id}")
+def get_product(product_id: int, session: SessionDep) -> ProductRead:
+    product = session.get(Product, product_id)
+    if product is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Product {product_id} not found")
+    return product_to_read(product)
+
+
+def commit_or_conflict(session: Session) -> None:
+    """Commit, turning a duplicate brand and name into 409 Conflict.
+
+    The unique index decides, instead of a lookup before the insert: two
+    requests could both look, find nothing, and both insert. Any other
+    IntegrityError means Pydantic let bad data through, which is a bug, so
+    it is re-raised and becomes a 500. No rollback is needed here: the
+    request's session is closed when the request ends, which rolls back.
+    """
+    try:
+        session.commit()
+    except IntegrityError as error:
+        if "uq_products_brand_name" in str(error.orig):
+            raise HTTPException(
+                status.HTTP_409_CONFLICT, "A product with this brand and name already exists"
+            ) from error
+        raise
