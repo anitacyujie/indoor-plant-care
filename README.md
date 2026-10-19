@@ -4,7 +4,7 @@ A lightweight care-management tool for experienced indoor plant growers. It keep
 
 It deliberately does not ask you to register every plant. People with dozens or hundreds of plants think in groups, and the products they use matter more than per-plant profiles.
 
-> **Status:** in progress. Products are done end to end (schema, tables, API). A sourced reference list of 72 houseplant genera is in place. Next: growing media, then groups, care plans and the care log (see [Roadmap](#roadmap)).
+> **Status:** in progress. Products and growing media are done end to end (schema, tables, API). A sourced reference list of 72 houseplant genera is in place. Next: groups, then care plans and the care log (see [Roadmap](#roadmap)).
 
 ## Tech stack
 
@@ -20,11 +20,11 @@ It deliberately does not ask you to register every plant. People with dozens or 
 
 **Done**
 - **Product:** brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), and one or more label directions (dose per volume of water, how often, and a name when there are several). Label data, not personal data.
+- **Growing medium:** a method (soil, semi-hydro, or water culture) and its components with parts (a fixed list such as bark, perlite, LECA, pon, plus `other` with a name). Shared by any number of groups. Components have no order of their own; they are listed with the most parts first.
 - **Taxa reference list** (`backend/data/taxa.json`): 72 genera in 31 families, each genus with its family, aliases, English and Chinese common names, and the sources that put it on the list.
 
 **Planned**
 - **Group:** plants you care for the same way. One or more genera or a family, variegation (none, variegated, or mixed), and an optional growing medium. No list of individual plants.
-- **Growing medium:** a method (soil, semi-hydro, or water culture) and its components with parts, shared by any number of groups.
 - **Care plan:** belongs to a group; a product, a dose, a trigger (every N days, or an event such as repotting), and a status (active, paused, archived).
 - **Care log:** what was done to a group and when, with a snapshot of the product and dose actually used.
 
@@ -38,6 +38,7 @@ It deliberately does not ask you to register every plant. People with dozens or 
 | `GET` | `/products/{id}` | Get one product, `404` if not found |
 | `PUT` | `/products/{id}` | Replace a product, including all label directions |
 | `DELETE` | `/products/{id}` | Delete a product and its label directions: `204` |
+| `POST` `GET` `PUT` `DELETE` | `/growing-media`, `/growing-media/{id}` | The same five operations for growing media; `409` on a duplicate name |
 
 Interactive docs are served at `/docs` once the server is running.
 
@@ -93,7 +94,9 @@ backend/
   app/
     main.py            # FastAPI app; loads the taxa list at startup
     routers/
+      common.py        # shared helpers: 404 lookup, 409 on a unique index
       products.py      # product endpoints and API <-> table conversion
+      growing_media.py # growing medium endpoints and conversion
     schemas.py         # Pydantic models and validation rules
     models.py          # SQLAlchemy tables and shared column types
     database.py        # engine setup (SQLite foreign keys), session dependency

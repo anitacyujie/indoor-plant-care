@@ -96,7 +96,8 @@ AI features, in order, after the core works:
   - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
 - Medium components (`MediumComponent`) are a fixed list of ids (matched exactly, like an enum, including `pon` and `leca` for semi-hydro) plus `other` with a user-given name.
-- **GrowingMedium: in progress.** Schema, tables (`growing_media`, `growing_medium_components`), and `POST /growing-media`, `GET /growing-media`, `GET /growing-media/{id}` done; PUT and DELETE next. Routers share `get_or_404` and `commit_or_conflict` from `app/routers/common.py`.
+- **GrowingMedium: done.** Schema, tables (`growing_media`, `growing_medium_components`; components have no position and are read most parts first, then by name), and `/growing-media` with the same five endpoints as products. Routers share `get_or_404` and `commit_or_conflict` from `app/routers/common.py`.
+  - Deleting a medium is unrestricted for now; once groups refer to media, a medium in use must be refused (409).
 - Group design agreed (see Data model).
 - Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
-- Next: GrowingMedium PUT and DELETE, then Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.
+- Next: Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.

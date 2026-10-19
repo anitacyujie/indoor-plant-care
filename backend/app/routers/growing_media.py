@@ -110,3 +110,21 @@ def list_media(session: SessionDep) -> list[GrowingMediumRead]:
 @router.get("/{medium_id}")
 def get_medium(medium_id: int, session: SessionDep) -> GrowingMediumRead:
     return medium_to_read(get_or_404(session, GrowingMedium, medium_id, "Growing medium"))
+
+
+@router.put("/{medium_id}")
+def replace_medium(
+    medium_id: int, data: GrowingMediumCreate, session: SessionDep
+) -> GrowingMediumRead:
+    """Replace every field and all components; id and created_at stay."""
+    medium = fill_medium(get_or_404(session, GrowingMedium, medium_id, "Growing medium"), data)
+    commit_or_conflict(session, *DUPLICATE)
+    return medium_to_read(medium)
+
+
+@router.delete("/{medium_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_medium(medium_id: int, session: SessionDep) -> None:
+    # Its components go with it (ON DELETE CASCADE). Once groups refer to
+    # media, deleting one that is in use must be refused instead.
+    session.delete(get_or_404(session, GrowingMedium, medium_id, "Growing medium"))
+    session.commit()
