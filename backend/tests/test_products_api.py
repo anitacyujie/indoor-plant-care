@@ -1,11 +1,6 @@
 """API tests for creating and reading products."""
 
 import pytest
-from fastapi import HTTPException
-from sqlalchemy.exc import IntegrityError
-
-from app.models import Product
-from app.routers.products import commit_or_conflict
 
 
 def create(client, product):
@@ -210,26 +205,3 @@ def test_delete_keeps_other_products(client, product):
 
 def test_delete_unknown_product_returns_404(client):
     assert client.delete("/products/999").status_code == 404
-
-# --- commit_or_conflict: only a duplicate brand and name becomes 409
-# (through the API, Pydantic rejects everything else first, so these call
-# the function directly)
-
-
-def add_raw(session, **fields):
-    session.add(Product(**({"brand": "B", "name": "N", "type": "additive"} | fields)))
-
-
-def test_commit_or_conflict_turns_duplicate_into_409(session):
-    add_raw(session)
-    session.commit()
-    add_raw(session, brand="b")
-    with pytest.raises(HTTPException) as caught:
-        commit_or_conflict(session)
-    assert caught.value.status_code == 409
-
-
-def test_commit_or_conflict_reraises_other_integrity_errors(session):
-    add_raw(session, type="slow_release")  # breaks a CHECK, not the unique index
-    with pytest.raises(IntegrityError, match="valid_type"):
-        commit_or_conflict(session)

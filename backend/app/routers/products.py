@@ -4,15 +4,12 @@ The API nests what the tables keep flat (npk -> four columns, frequency ->
 kind and days), so conversion is written out by hand in both directions.
 """
 
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, status
 from sqlalchemy import delete, func, select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, object_session, selectinload
+from sqlalchemy.orm import object_session, selectinload
 
-from app.database import get_session
 from app.models import Product, ProductLabelDirection
+from app.routers.common import SessionDep, commit_or_conflict, get_or_404
 from app.schemas import (
     EveryWateringFrequency,
     IntervalFrequency,
@@ -123,14 +120,14 @@ def row_to_direction(row: ProductLabelDirection) -> LabelDirection:
 
 router = APIRouter(prefix="/products", tags=["products"])
 
-SessionDep = Annotated[Session, Depends(get_session)]
+DUPLICATE = ("uq_products_brand_name", "A product with this brand and name already exists")
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create_product(data: ProductCreate, session: SessionDep) -> ProductRead:
     product = fill_product(Product(), data)
     session.add(product)
-    commit_or_conflict(session)
+    commit_or_conflict(session, *DUPLICATE)
     return product_to_read(product)
 
 
@@ -147,45 +144,20 @@ def list_products(session: SessionDep) -> list[ProductRead]:
 
 @router.get("/{product_id}")
 def get_product(product_id: int, session: SessionDep) -> ProductRead:
-    return product_to_read(get_or_404(session, product_id))
+    return product_to_read(get_or_404(session, Product, product_id, "Product"))
 
 
 @router.put("/{product_id}")
 def replace_product(product_id: int, data: ProductCreate, session: SessionDep) -> ProductRead:
     """Replace every field and all label directions; id and created_at stay."""
-    product = fill_product(get_or_404(session, product_id), data)
-    commit_or_conflict(session)
+    product = fill_product(get_or_404(session, Product, product_id, "Product"), data)
+    commit_or_conflict(session, *DUPLICATE)
     return product_to_read(product)
 
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, session: SessionDep) -> None:
     # Its label directions go with it (ON DELETE CASCADE).
-    session.delete(get_or_404(session, product_id))
+    session.delete(get_or_404(session, Product, product_id, "Product"))
     session.commit()
 
-
-def get_or_404(session: Session, product_id: int) -> Product:
-    product = session.get(Product, product_id)
-    if product is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Product {product_id} not found")
-    return product
-
-
-def commit_or_conflict(session: Session) -> None:
-    """Commit, turning a duplicate brand and name into 409 Conflict.
-
-    The unique index decides, instead of a lookup before the insert: two
-    requests could both look, find nothing, and both insert. Any other
-    IntegrityError means Pydantic let bad data through, which is a bug, so
-    it is re-raised and becomes a 500. No rollback is needed here: the
-    request's session is closed when the request ends, which rolls back.
-    """
-    try:
-        session.commit()
-    except IntegrityError as error:
-        if "uq_products_brand_name" in str(error.orig):
-            raise HTTPException(
-                status.HTTP_409_CONFLICT, "A product with this brand and name already exists"
-            ) from error
-        raise
