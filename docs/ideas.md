@@ -32,6 +32,12 @@ The schema only rejects impossible NPK values (each 0-100). Values that are poss
 - **Limit:** these catch typos like 90 for 9, not "too strong for houseplants"; that needs label data for houseplant products, and no reliable source was found.
 - **When:** after the core API works; the API then returns warnings and saves only after the user confirms.
 
+### Duplicate growing medium warning
+Two media with different names but the same method and the same components and parts (in any order) are allowed, since they may be adjusted apart later. But it is often a user forgetting an existing one.
+- **Idea:** when saving, find a medium with the same method and component set, and ask "this matches 'Aroid mix'; use that one instead?". Saving still works after confirming.
+- **Why not reject:** some matches are on purpose, "the same" is a cross-row comparison no constraint can express, and the same components can mean different care (LECA in soil vs. semi-hydro), so method must match too.
+- **When:** with the NPK soft warnings, after the core works; the API then returns warnings and saves after the user confirms.
+
 ## User features
 
 ### Environment conditions per group (e.g., humidity)
