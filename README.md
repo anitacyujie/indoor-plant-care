@@ -77,7 +77,7 @@ python -m pytest -v         # run the test suite
 - **The database repeats the rules.** Single-row rules from the schemas are also CHECK constraints, so other writers (scripts, imports) cannot break them. In a CHECK, nullable columns are guarded with `IS NOT NULL`, because a NULL result passes the check; a test caught exactly that bug.
 - **Exact decimals in SQLite.** SQLite stores NUMERIC as floating point, so decimals are stored as integer hundredths (9.25 as 925) by a custom column type.
 - **Uniqueness decided by the database.** A duplicate product name is caught by a unique index and returned as `409`, rather than looked up first, which would race under concurrent requests.
-- **Replacing child rows safely.** SQLAlchemy inserts before it deletes, so replacing label directions that keep their names hit the unique index. Old rows are deleted and flushed first, before any other field changes.
+- **Replacing child rows safely.** SQLAlchemy inserts before it deletes, so replacing label directions that keep their names hit the unique index. Old rows are now removed with one direct `DELETE`, and the update runs without autoflush, so a duplicate name still fails at commit and becomes `409`, not `500`.
 - **Time is stored in UTC**, and naive datetimes are rejected.
 - **Migrations run by hand and are reviewed.** Autogenerate misses CHECK constraints and skips expression indexes on SQLite, so a test builds one database from the migrations and one from the models and compares their constraints and indexes.
 

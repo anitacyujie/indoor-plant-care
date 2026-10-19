@@ -183,6 +183,13 @@ def test_replace_with_own_name_in_different_case_succeeds(client, product):
     assert response.json()["name"] == "FOLIAGE-PRO"
 
 
+
+def test_replace_keeps_other_products_directions(client, product):
+    first = create(client, product).json()
+    second = create(client, product | {"name": "Other"}).json()  # not "Grow", which changed() takes
+    assert replace(client, first["id"], changed(product)).status_code == 200
+    assert client.get(f"/products/{second['id']}").json() == second
+
 # --- DELETE /products/{id}
 
 

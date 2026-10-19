@@ -7,7 +7,7 @@ kind and days), so conversion is written out by hand in both directions.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, object_session, selectinload
 
@@ -27,20 +27,28 @@ def fill_product(product: Product, data: ProductCreate) -> Product:
     """Write data into product, replacing all of its label directions.
 
     Used for both create (a new Product) and update (an existing one).
-    On update this flushes: the old directions are deleted in the open
-    transaction, so the caller must commit or roll back afterwards.
+    On update the old directions are deleted in the open transaction, so the
+    caller must commit or roll back afterwards.
     """
-    # On update, delete the old directions before adding the new ones. A
-    # flush otherwise inserts before it deletes, so a direction that keeps
-    # its use or position would collide with the row it replaces under the
-    # unique indexes. This runs before any field changes, so the flush sends
-    # only the deletes; a duplicate brand and name then fails at commit,
-    # where the caller turns it into 409.
     session = object_session(product)
-    if session is not None and product.label_directions:
-        product.label_directions.clear()
-        session.flush()
+    if session is None:  # a new product: nothing saved, nothing to delete
+        return write_product(product, data)
 
+    # On update, delete the old directions with one DELETE, which runs right
+    # away; new ones added on top of them would collide with rows that keep
+    # their use or position (a flush inserts before it deletes).
+    # no_autoflush: nothing else is sent before commit. Otherwise the DELETE,
+    # or loading the old list to replace it, would first send the field
+    # changes, and a duplicate name would fail here instead of at commit,
+    # where the caller turns it into 409.
+    with session.no_autoflush:
+        session.execute(
+            delete(ProductLabelDirection).where(ProductLabelDirection.product_id == product.id)
+        )
+        return write_product(product, data)
+
+
+def write_product(product: Product, data: ProductCreate) -> Product:
     product.brand = data.brand
     product.name = data.name
     product.type = data.type
