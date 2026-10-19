@@ -3,26 +3,26 @@ from typing import get_args
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
-from app.schemas import SoilComponent, SoilComponentId
+from app.schemas import MediumComponent, MediumComponentId
 
-# SoilComponent is a union, not a model class, so it is validated through a
-# TypeAdapter instead of SoilComponent.model_validate.
-soil_component = TypeAdapter(SoilComponent)
+# MediumComponent is a union, not a model class, so it is validated through a
+# TypeAdapter instead of MediumComponent.model_validate.
+medium_component = TypeAdapter(MediumComponent)
 
 
 def rejects(data):
     with pytest.raises(ValidationError):
-        soil_component.validate_python(data)
+        medium_component.validate_python(data)
 
 
-@pytest.mark.parametrize("component_id", get_args(SoilComponentId))
+@pytest.mark.parametrize("component_id", get_args(MediumComponentId))
 def test_each_listed_component_accepted(component_id):
-    result = soil_component.validate_python({"component": component_id, "parts": 2})
+    result = medium_component.validate_python({"component": component_id, "parts": 2})
     assert result.component == component_id
 
 
 def test_other_with_name_accepted():
-    result = soil_component.validate_python(
+    result = medium_component.validate_python(
         {"component": "other", "name": "zeolite", "parts": 1}
     )
     assert result.name == "zeolite"
@@ -47,7 +47,7 @@ def test_unknown_component_rejected(bad_id):
 
 
 def test_parts_accepts_one():
-    assert soil_component.validate_python({"component": "bark", "parts": 1}).parts == 1
+    assert medium_component.validate_python({"component": "bark", "parts": 1}).parts == 1
 
 
 @pytest.mark.parametrize("bad_parts", [0, -1, 1.5])

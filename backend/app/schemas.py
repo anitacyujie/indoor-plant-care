@@ -27,9 +27,10 @@ Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
 Days = Annotated[int, Field(gt=0)]
 
 
+# Materials of a growing medium (soil mixes and semi-hydro media alike).
 # Fixed ids, so the same material is always spelled the same way and can
 # later carry reference data (drainage, aeration, ...).
-SoilComponentId = Literal[
+MediumComponentId = Literal[
     "bark",
     "perlite",
     "pumice",
@@ -39,21 +40,22 @@ SoilComponentId = Literal[
     "charcoal",
     "worm_castings",
     "leca",
+    "pon",  # a mineral semi-hydro substrate, usually called by this name
     "lava_rock",
     "akadama",
     "potting_soil",
 ]
 
-# Parts of a mix, e.g. 2 bark : 1 perlite. Shares are computed from parts.
+# Parts of a medium, e.g. 2 bark : 1 perlite. Shares are computed from parts.
 Parts = Annotated[int, Field(gt=0)]
 
 
-class ListedSoilComponent(StrictModel):
-    component: SoilComponentId
+class ListedMediumComponent(StrictModel):
+    component: MediumComponentId
     parts: Parts
 
 
-class OtherSoilComponent(StrictModel):
+class OtherMediumComponent(StrictModel):
     """A material not in the list, named by the user."""
 
     component: Literal["other"]
@@ -62,8 +64,8 @@ class OtherSoilComponent(StrictModel):
 
 
 # "component" decides which model applies; only "other" takes a name.
-SoilComponent = Annotated[
-    ListedSoilComponent | OtherSoilComponent, Field(discriminator="component")
+MediumComponent = Annotated[
+    ListedMediumComponent | OtherMediumComponent, Field(discriminator="component")
 ]
 
 
