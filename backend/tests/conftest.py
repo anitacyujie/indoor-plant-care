@@ -45,6 +45,26 @@ def product():
     return copy.deepcopy(VALID_PRODUCT)
 
 
+# A soil mix with listed components and one "other", so rules for both kinds
+# can be tested by changing one entry.
+VALID_MEDIUM = {
+    "name": "Aroid mix",
+    "method": "soil",
+    "components": [
+        {"component": "bark", "parts": 2},
+        {"component": "perlite", "parts": 1},
+        {"component": "other", "name": "zeolite", "parts": 1},
+    ],
+    "notes": "Chunky; dries in about a week.",
+}
+
+
+@pytest.fixture
+def medium():
+    """A fresh copy of VALID_MEDIUM."""
+    return copy.deepcopy(VALID_MEDIUM)
+
+
 @pytest.fixture
 def session():
     """A fresh in-memory database with all tables, discarded after each test."""

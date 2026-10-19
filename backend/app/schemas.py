@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal, Self, get_args
 
 from pydantic import (
     BaseModel,
@@ -67,6 +67,51 @@ class OtherMediumComponent(StrictModel):
 MediumComponent = Annotated[
     ListedMediumComponent | OtherMediumComponent, Field(discriminator="component")
 ]
+
+
+# soil: a soil or chunky mix. semi_hydro: an inert medium such as LECA or pon
+# over a water reservoir. hydro: plants grown in water.
+GrowingMethod = Literal["soil", "semi_hydro", "hydro"]
+
+
+def normalize_component_name(name: str) -> str:
+    """"Coco coir", "coco-coir" and "Coco_Coir" all become "coco_coir"."""
+    return name.casefold().replace(" ", "_").replace("-", "_")
+
+
+class GrowingMediumCreate(StrictModel):
+    """A growing medium as entered by the user; shared by any number of groups."""
+
+    name: NonEmptyStr
+    method: GrowingMethod
+    components: list[MediumComponent] = []
+    notes: str = ""
+
+    @model_validator(mode="after")
+    def check_components_for_method(self) -> Self:
+        # Water culture may be water alone; every other method has a medium.
+        if self.method != "hydro" and not self.components:
+            raise ValueError(f"a {self.method} medium needs at least one component")
+        return self
+
+    @model_validator(mode="after")
+    def check_components_unique(self) -> Self:
+        listed = [c.component for c in self.components if isinstance(c, ListedMediumComponent)]
+        if len(listed) != len(set(listed)):
+            raise ValueError("each listed component may appear only once")
+
+        others = [
+            normalize_component_name(c.name)
+            for c in self.components
+            if isinstance(c, OtherMediumComponent)
+        ]
+        if len(others) != len(set(others)):
+            raise ValueError("each other component name may appear only once")
+        # An "other" spelled like a listed id would store one material two ways.
+        clashes = set(others) & set(get_args(MediumComponentId))
+        if clashes:
+            raise ValueError(f"use the listed component instead of other: {sorted(clashes)}")
+        return self
 
 
 def decimal_to_json_number(value: Decimal) -> int | float:
