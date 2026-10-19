@@ -114,6 +114,13 @@ class GrowingMediumCreate(StrictModel):
         return self
 
 
+class GrowingMediumRead(GrowingMediumCreate):
+    """A saved growing medium, as the API returns it."""
+
+    id: int
+    created_at: datetime
+
+
 def decimal_to_json_number(value: Decimal) -> int | float:
     """9 -> 9, 0.25 -> 0.25: a JSON number, not Pydantic's default string."""
     return int(value) if value == value.to_integral_value() else float(value)
