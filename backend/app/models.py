@@ -214,10 +214,15 @@ class GrowingMedium(Base):
     notes: Mapped[str] = mapped_column(default="")
     created_at: Mapped[datetime] = mapped_column(UtcDateTime, default=utc_now)
 
-    # Same cascade setup as Product.label_directions.
+    # Same cascade setup as Product.label_directions. Order does not matter
+    # in a mix, so there is no position: most parts first, then by name
+    # (the other name, or the listed id), ignoring case.
     components: Mapped[list["GrowingMediumComponent"]] = relationship(
         back_populates="medium",
-        order_by="GrowingMediumComponent.position",
+        order_by=lambda: (
+            GrowingMediumComponent.parts.desc(),
+            func.lower(func.coalesce(GrowingMediumComponent.other_name, GrowingMediumComponent.component)),
+        ),
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -232,8 +237,6 @@ class GrowingMediumComponent(Base):
 
     __tablename__ = "growing_medium_components"
     __table_args__ = (
-        UniqueConstraint("growing_medium_id", "position", name="uq_medium_component_position"),
-        CheckConstraint("position >= 0", name="medium_component_position_not_negative"),
         CheckConstraint("parts > 0", name="parts_positive"),
         # Built from the schema's list, so the two cannot drift apart. Adding
         # an id needs a migration too (the migration tests catch a missing one).
@@ -254,7 +257,6 @@ class GrowingMediumComponent(Base):
     growing_medium_id: Mapped[int] = mapped_column(
         ForeignKey("growing_media.id", ondelete="CASCADE"), index=True
     )
-    position: Mapped[int]
     component: Mapped[str]
     other_name: Mapped[str | None]
     parts: Mapped[int]

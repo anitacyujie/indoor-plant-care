@@ -34,17 +34,14 @@ def upgrade() -> None:
     op.create_table('growing_medium_components',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('growing_medium_id', sa.Integer(), nullable=False),
-    sa.Column('position', sa.Integer(), nullable=False),
     sa.Column('component', sa.String(), nullable=False),
     sa.Column('other_name', sa.String(), nullable=True),
     sa.Column('parts', sa.Integer(), nullable=False),
     sa.CheckConstraint("(component = 'other' AND other_name IS NOT NULL AND length(trim(other_name)) > 0) OR (component <> 'other' AND other_name IS NULL)", name='other_name_only_for_other'),
     sa.CheckConstraint("component IN ('bark', 'perlite', 'pumice', 'coco_coir', 'peat', 'sphagnum_moss', 'charcoal', 'worm_castings', 'leca', 'pon', 'lava_rock', 'akadama', 'potting_soil', 'other')", name='valid_component'),
     sa.CheckConstraint('parts > 0', name='parts_positive'),
-    sa.CheckConstraint('position >= 0', name='medium_component_position_not_negative'),
     sa.ForeignKeyConstraint(['growing_medium_id'], ['growing_media.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('growing_medium_id', 'position', name='uq_medium_component_position')
+    sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('growing_medium_components', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_growing_medium_components_growing_medium_id'), ['growing_medium_id'], unique=False)

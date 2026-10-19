@@ -15,7 +15,7 @@ def make_medium(**fields):
 
 
 def make_component(**fields):
-    return GrowingMediumComponent(**({"position": 0, "component": "bark", "parts": 2} | fields))
+    return GrowingMediumComponent(**({"component": "bark", "parts": 2} | fields))
 
 
 def save(session, row):
@@ -94,11 +94,16 @@ def test_medium_without_components_allowed_in_database(session, medium):
 # --- components: link to the medium and order
 
 
-def test_components_are_read_in_position_order(session, medium):
-    add_component(session, medium, position=1, component="perlite")
-    add_component(session, medium, position=0, component="bark")
+# Most parts first, then by name ignoring case: the other name, or the
+# listed id. Case-sensitive order would put "Zeolite" before "pon".
+def test_components_are_read_most_parts_first_then_by_name(session, medium):
+    add_component(session, medium, component="pon", parts=1)
+    add_component(session, medium, component="other", other_name="Zeolite", parts=1)
+    add_component(session, medium, component="other", other_name="biochar", parts=1)
+    add_component(session, medium, component="bark", parts=3)
     session.expire_all()
-    assert [c.component for c in medium.components] == ["bark", "perlite"]
+    names = [c.other_name or c.component for c in medium.components]
+    assert names == ["bark", "biochar", "pon", "Zeolite"]
 
 
 def test_unknown_medium_rejected(session):
@@ -107,8 +112,8 @@ def test_unknown_medium_rejected(session):
 
 def test_deleting_medium_deletes_its_components(session, medium):
     other = save(session, make_medium(name="Orchid bark"))
-    add_component(session, medium, position=0, component="bark")
-    add_component(session, medium, position=1, component="perlite")
+    add_component(session, medium, component="bark")
+    add_component(session, medium, component="perlite")
     add_component(session, other)
 
     session.delete(medium)
@@ -125,18 +130,9 @@ def test_deleting_component_keeps_medium(session, medium):
     assert session.get(GrowingMedium, medium.id) is not None
 
 
-@pytest.mark.parametrize("column", ["growing_medium_id", "position", "component", "parts"])
+@pytest.mark.parametrize("column", ["growing_medium_id", "component", "parts"])
 def test_component_required_column(session, medium, column):
     rejected(session, make_component(**({"growing_medium_id": medium.id} | {column: None})), f"NOT NULL.*{column}")
-
-
-def test_negative_position_rejected(session, medium):
-    rejected_component(session, medium, "medium_component_position_not_negative", position=-1)
-
-
-def test_duplicate_position_rejected(session, medium):
-    add_component(session, medium, position=0, component="bark")
-    rejected_component(session, medium, "UNIQUE", position=0, component="perlite")
 
 
 @pytest.mark.parametrize("bad", [0, -1])
@@ -173,19 +169,19 @@ def test_listed_component_cannot_have_a_name(session, medium):
 
 
 def test_duplicate_listed_component_rejected(session, medium):
-    add_component(session, medium, position=0, component="bark")
-    rejected_component(session, medium, "UNIQUE", position=1, component="bark")
+    add_component(session, medium, component="bark")
+    rejected_component(session, medium, "UNIQUE", component="bark")
 
 
 @pytest.mark.parametrize("second", ["zeolite", "ZEOLITE"], ids=["same", "different-case"])
 def test_duplicate_other_name_rejected(session, medium, second):
-    add_component(session, medium, position=0, component="other", other_name="zeolite")
-    rejected_component(session, medium, "UNIQUE", position=1, component="other", other_name=second)
+    add_component(session, medium, component="other", other_name="zeolite")
+    rejected_component(session, medium, "UNIQUE", component="other", other_name=second)
 
 
 def test_several_other_components_accepted(session, medium):
-    add_component(session, medium, position=0, component="other", other_name="zeolite")
-    add_component(session, medium, position=1, component="other", other_name="rice hulls")
+    add_component(session, medium, component="other", other_name="zeolite")
+    add_component(session, medium, component="other", other_name="rice hulls")
     assert count_components(session) == 2
 
 
@@ -207,6 +203,6 @@ def test_same_other_name_in_two_media_accepted(session, medium):
 def test_identical_media_with_different_names_allowed(session, medium):
     twin = save(session, make_medium(name="Hoya mix"))
     for row in (medium, twin):
-        add_component(session, row, position=0, component="bark", parts=2)
-        add_component(session, row, position=1, component="perlite", parts=1)
+        add_component(session, row, component="bark", parts=2)
+        add_component(session, row, component="perlite", parts=1)
     assert session.scalar(select(func.count()).select_from(GrowingMedium)) == 2
