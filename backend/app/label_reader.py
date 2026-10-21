@@ -70,6 +70,32 @@ PRICES_PER_MTOK = {
 }
 
 
+# Formats the API accepts, told apart by their first bytes rather than by the
+# file name or the browser's content type, which can be wrong.
+IMAGE_SIGNATURES = [
+    (b"\xff\xd8\xff", "image/jpeg"),
+    (b"\x89PNG\r\n\x1a\n", "image/png"),
+    (b"GIF87a", "image/gif"),
+    (b"GIF89a", "image/gif"),
+]
+
+# The API takes up to 10 MB per image after base64 encoding, which adds a
+# third: about 7.5 MB of raw bytes. Larger images are downscaled by the API,
+# so there is no need to resize phone photos first.
+MAX_IMAGE_BYTES = 7 * 1024 * 1024
+
+
+def image_media_type(data: bytes) -> str | None:
+    """The media type of a supported image, or None for anything else."""
+    for signature, media_type in IMAGE_SIGNATURES:
+        if data.startswith(signature):
+            return media_type
+    # WebP: "RIFF", four bytes of size, then "WEBP".
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
 class LabelReadError(Exception):
     """Base class: reading the label did not produce an extraction."""
 

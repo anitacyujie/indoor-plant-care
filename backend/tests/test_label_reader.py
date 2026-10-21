@@ -7,12 +7,12 @@ from decimal import Decimal
 from types import SimpleNamespace
 
 import anthropic
-import httpx2
 import pytest
 
 from app import label_reader
 from app.config import LABEL_MODEL
 from app.label_reader import (
+    MAX_IMAGE_BYTES,
     PROMPT_VERSION,
     LabelReaderUnavailable,
     LabelReadFailed,
@@ -22,67 +22,14 @@ from app.label_reader import (
     read_label,
 )
 from app.schemas import LabelExtraction
+from fake_anthropic import EXTRACTION, REQUEST, FakeClient, response, status_error, text_block
 
 IMAGE = b"\x89PNG fake image bytes"
-
-EXTRACTION = {
-    "brand": "Dyna-Gro",
-    "name": "Foliage-Pro",
-    "type": "liquid_fertilizer",
-    "npk": {"n": 9, "p": 3, "k": 6},
-    "npk_basis": "oxide",
-    "label_directions": [{
-        "source_text": "1/4 tsp per gallon every watering",
-        "amount": 0.25, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
-        "frequency_kind": "every_watering", "frequency_days": None, "use": None,
-    }],
-    "notes": None,
-    "uncertain_fields": [],
-}
-
-
-def text_block(text):
-    return SimpleNamespace(type="text", text=text)
-
-
-def response(
-    content=None, stop_reason="end_turn", model="claude-opus-5-5",
-    input_tokens=2000, output_tokens=800, iterations=None,
-):
-    """Shaped like the SDK's BetaMessage, with only the fields read_label uses."""
-    return SimpleNamespace(
-        content=[text_block(json.dumps(EXTRACTION))] if content is None else content,
-        stop_reason=stop_reason,
-        model=model,
-        usage=SimpleNamespace(input_tokens=input_tokens, output_tokens=output_tokens, iterations=iterations),
-    )
-
-
-class FakeClient:
-    """Records the request and returns (or raises) what the test set up."""
-
-    def __init__(self, result):
-        self.result = result
-        self.requests = []
-        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self.create))
-
-    def create(self, **kwargs):
-        self.requests.append(kwargs)
-        if isinstance(self.result, Exception):
-            raise self.result
-        return self.result
 
 
 def read(result, **kwargs):
     client = FakeClient(result)
     return read_label(client, IMAGE, "image/png", **kwargs), client.requests[0]
-
-
-REQUEST = httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
-
-
-def status_error(cls, status):
-    return cls("error", response=httpx2.Response(status, request=REQUEST), body=None)
 
 
 # --- a successful read
@@ -270,3 +217,13 @@ def test_client_is_created_once(monkeypatch):
         assert get_anthropic_client() is get_anthropic_client()
     finally:
         get_anthropic_client.cache_clear()
+
+
+# --- the upload size limit
+
+
+# The API takes 10 MB per image after base64 encoding (4 bytes out for every 3
+# in), so the raw limit must leave room for that. 10 MB is read as 10,000,000
+# bytes, the stricter reading.
+def test_size_limit_fits_the_api_after_base64():
+    assert len(base64.standard_b64encode(b"x" * MAX_IMAGE_BYTES)) <= 10_000_000

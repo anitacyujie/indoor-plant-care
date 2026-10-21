@@ -284,11 +284,32 @@ class DraftProblem(StrictModel):
 
 
 class LabelDraft(StrictModel):
-    """What POST /products/draft returns; nothing is saved."""
+    """A product draft built from a label reading; nothing is saved."""
 
     extraction: LabelExtraction  # as the model read it, to prefill the form
     product: ProductCreate | None  # the draft, if it already passes every rule
     problems: list[DraftProblem]  # empty when product is set
+
+
+class LabelCallRead(StrictModel):
+    """What reading the label cost, shown with the draft."""
+
+    model_requested: str
+    model_served: str
+    fell_back: bool
+    prompt_version: str
+    input_tokens: int
+    output_tokens: int
+    latency_ms: int
+    cost_usd: Annotated[
+        Decimal | None, PlainSerializer(decimal_to_json_number, when_used="json-unless-none")
+    ]
+
+
+class LabelDraftResponse(LabelDraft):
+    """What POST /products/draft returns: the draft plus the model call behind it."""
+
+    call: LabelCallRead
 
 
 # --- Taxa reference list (backend/data/taxa.json)
