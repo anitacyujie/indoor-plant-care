@@ -53,7 +53,7 @@ def locations(data):
 # --- a complete label becomes a product
 
 
-def test_complete_label_gives_product_without_problems(extraction):
+def test_complete_label_gives_a_draft_ready_to_save(extraction):
     result = draft(extraction)
     assert result.problems == []
     product = result.product
@@ -92,12 +92,12 @@ def test_missing_notes_become_empty(extraction):
     assert draft(extraction).product.notes == ""
 
 
-def test_additive_without_npk_gives_product(extraction):
+def test_additive_without_npk_gives_a_draft_ready_to_save(extraction):
     extraction |= {"type": "additive", "npk": None, "npk_basis": None}
     assert draft(extraction).product.npk is None
 
 
-def test_uncertain_fields_do_not_block_the_product(extraction):
+def test_uncertain_fields_do_not_block_a_ready_draft(extraction):
     extraction["uncertain_fields"] = ["npk.p"]
     result = draft(extraction)
     assert result.product is not None
