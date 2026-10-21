@@ -62,6 +62,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 - Backend: Python + FastAPI, in `backend/`, virtual environment at `backend/.venv`, dependencies in `backend/requirements.txt` and `backend/requirements-dev.txt`
 - Validation: Pydantic schemas in `backend/app/schemas.py`
+- LLM: Anthropic Python SDK (`anthropic`, pinned to 1.x), default model `claude-opus-5-5`, set by `LABEL_MODEL`. Config in `backend/app/config.py` from environment variables and the git-ignored `backend/.env` (template: `backend/.env.example`).
 - Database: SQLite to start, PostgreSQL later; SQLAlchemy 2.0 ORM (models in `backend/app/models.py`), Alembic migrations in `backend/migrations/`
 - Frontend: React + Vite, PWA (later, in `frontend/`)
 - Tests: pytest (unit and API), Playwright (end-to-end)
@@ -74,6 +75,9 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 The owner is moving toward AI engineering roles, so AI features come early, each with an eval, instead of after the whole core. Each step ends in a working, demoable state.
 
 1. **AI 1: label photo to Product draft.** Claude reads a fertilizer label photo and drafts a Product (structured output, validated by the Pydantic schema, confirmed by the user before saving). With an evaluation set of real label photos and owner-checked answers, measuring per-field accuracy. Depends only on Product, which is done.
+   - The model transcribes what the label shows into a looser `LabelExtraction` (fields may be empty: not printed or unreadable; never guessed), and the server validates it against `ProductCreate` and reports what the user must fill in. The model never writes to the database.
+   - Unit tests mock the Claude client (no network, no cost); the eval calls the real model, runs by hand, and reports per-field accuracy, cost, and latency.
+   - Record cost, latency, and tokens for every call; version the prompt and record it with each eval run; analyze failed cases (glare, handwriting, non-English labels); compare models (e.g. Opus vs. Haiku) on accuracy and cost.
 2. **Groups, pots, and the care log.** Groups own how plants are cared for (plans, growing medium); lightweight pots inside a group own when (last watered, last fertilized). See "Pots" under Data model.
 3. **AI 3: natural-language quick logging** (e.g. "fertilized variegated Monstera, 1 ml" becomes a confirmed log entry; tool use).
 4. **Simple frontend** (React + Vite): upload a label photo and confirm the draft, tick pots to log watering.

@@ -2,3 +2,6 @@ fastapi[standard]
 sqlalchemy
 tzdata
 alembic
+# 1.x: the 2.0 release (2026-10-21) targets a new API version; upgrade separately.
+anthropic>=1.17,<2
+python-dotenv
