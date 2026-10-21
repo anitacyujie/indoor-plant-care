@@ -19,7 +19,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 ## Product principles
 
-- Products and plans first; individual plant profiles are optional and out of the MVP.
+- Products and plans first. Pots are lightweight (a name in a group, for tracking when each was last watered or fed); detailed plant profiles stay out of the MVP.
 - Plans attach to groups. A group is whatever set of plants the user cares for the same way, not a fixed taxonomy level: one genus, several genera, or a family. Variegated plants usually get their own group because they are fed more weakly, but the user decides.
 - Logging takes one or two steps.
 - Plans and history are separate: editing a plan never changes past logs.
@@ -41,6 +41,7 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 - **CarePlan**: belongs to a group; product, dose (amount per volume of water), trigger, status (active, paused, archived).
   - Trigger is either `interval` (every N days; shows in Upcoming) or an event such as `repot` (shown when that event is logged).
   - A group can have several plans, e.g., a routine fertilizer plus a repotting fertilizer.
+- **Pots** (direction agreed, details open): a group has optional, lightweight pots (just a name such as "living room Philodendron"), because pots in one group dry out at different rates. Groups own how (plans, medium); pots own when (last watered, last fertilized). Watering is decided by touch and pot weight, so the app records and sorts by days since watering instead of predicting it; logging stays one or two steps (tick several pots, then "watered"). Open: whether fertilizing is logged with watering or on its own.
 - **CareLog**: group, action (fertilize, repot, water, ...), timestamp, notes, optional plan reference, and a snapshot of the product and actual dose used. Logs must stay correct after the plan is edited.
 
 ## Conventions
@@ -70,20 +71,18 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 ## Roadmap
 
-Each step ends in a working, demoable state.
+The owner is moving toward AI engineering roles, so AI features come early, each with an eval, instead of after the whole core. Each step ends in a working, demoable state.
 
-1. **Core (P0)**: Products, Groups, CarePlans, CareLogs and History as backend API with SQLite, then a simple frontend. Build the backend first.
-2. **Tests**: pytest unit and API tests (including "editing a plan does not change past logs"); Playwright E2E for the main flow.
-3. **Docker**: containerize frontend, backend, and database; start everything with docker-compose. Then run mutation testing (mutmut) inside the backend container; see `docs/ideas.md`.
-4. **CI/CD and deployment**: GitHub Actions runs tests on every push and deploys on success to a public URL. Adopt a feature-branch + pull request workflow here. Then add Upcoming reminders via PWA push (needs HTTPS).
-5. **Monitoring**: four golden signals from the backend; Prometheus + Grafana dashboards; one or two alerts.
-6. **Failure drill and docs**: intentionally break something (e.g., stop the database), verify alerts and dashboards, write an RCA and a runbook; finish README and architecture diagram.
-
-AI features, in order, after the core works:
-
-1. Read a fertilizer label photo and draft a Product (validated by the Pydantic schema, confirmed by the user), with an evaluation set measuring extraction accuracy.
-2. Draft a care plan and growing medium for a new genus group from multiple web sources, with sources, consensus, and disputed points.
-3. Natural-language quick logging (e.g., "fertilized variegated Monstera, 1 ml").
+1. **AI 1: label photo to Product draft.** Claude reads a fertilizer label photo and drafts a Product (structured output, validated by the Pydantic schema, confirmed by the user before saving). With an evaluation set of real label photos and owner-checked answers, measuring per-field accuracy. Depends only on Product, which is done.
+2. **Groups, pots, and the care log.** Groups own how plants are cared for (plans, growing medium); lightweight pots inside a group own when (last watered, last fertilized). See "Pots" under Data model.
+3. **AI 3: natural-language quick logging** (e.g. "fertilized variegated Monstera, 1 ml" becomes a confirmed log entry; tool use).
+4. **Simple frontend** (React + Vite): upload a label photo and confirm the draft, tick pots to log watering.
+5. **AI 2: draft a care plan and growing medium** for a new group from multiple web sources, with sources, consensus, and disputed points.
+6. **Tests**: Playwright E2E for the main flows; "editing a plan does not change past logs".
+7. **Docker**: containerize frontend, backend, and database; docker-compose. Then mutation testing (mutmut) in the backend container; see `docs/ideas.md`.
+8. **CI/CD and deployment**: GitHub Actions runs tests and the evals on every push and deploys on success to a public URL. Feature-branch + pull request workflow from here. Then Upcoming reminders via PWA push (needs HTTPS).
+9. **Monitoring**: four golden signals plus LLM cost and latency; Prometheus + Grafana dashboards; one or two alerts.
+10. **Failure drill and docs**: break something on purpose, verify alerts, write an RCA and a runbook; finish README and architecture diagram.
 
 ## Current status
 
@@ -100,4 +99,4 @@ AI features, in order, after the core works:
   - Deleting a medium is unrestricted for now; once groups refer to media, a medium in use must be refused (409).
 - Group design agreed (see Data model).
 - Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
-- Next: Groups (schema, tables, API, `GET /taxa` for search), then CarePlans.
+- Next: AI 1 (label photo to Product draft, with an eval set), then groups, pots, and the care log.
