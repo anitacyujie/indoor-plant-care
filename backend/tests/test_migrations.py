@@ -7,9 +7,9 @@ from alembic.config import Config
 from alembic.migration import MigrationContext
 from sqlalchemy import Engine, inspect, text
 
-import app.models  # noqa: F401  registers every table on Base.metadata
-from app import database
-from app.database import Base, create_db_engine
+import app.all_models  # noqa: F401  registers every table on Base.metadata
+from app.core import database
+from app.core.database import Base, create_db_engine
 
 MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
 

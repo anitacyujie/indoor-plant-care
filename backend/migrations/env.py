@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import TypeDecorator
 
-import app.models  # noqa: F401  registers every table on Base.metadata
-from app.database import DATABASE_URL, Base, create_db_engine
+import app.all_models  # noqa: F401  registers every table on Base.metadata
+from app.core.database import DATABASE_URL, Base, create_db_engine
 
 config = context.config
 

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from app.database import Base, create_db_engine, get_session
+from app.core.database import Base, create_db_engine, get_session
 from app.main import app
 
 # Every value sits well inside its limits (e.g. 9-3-6, far from 0 and 100),

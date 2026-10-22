@@ -22,7 +22,7 @@ This document covers the whole Product feature: the API shape, the validation ru
 
 ## 1. Shape (API)
 
-Defined in `backend/app/schemas.py`. `ProductCreate` is what the API accepts; `ProductRead` adds `id` and `created_at`.
+Defined in `backend/app/products/schemas.py`. `ProductCreate` is what the API accepts; `ProductRead` adds `id` and `created_at`.
 
 ```json
 {
@@ -83,7 +83,7 @@ All objects reject unknown fields, so a typo such as `"dilutoin"` is an error ra
 
 ## 3. Tables
 
-Defined in `backend/app/models.py`; migrations in `backend/migrations/versions/`.
+Defined in `backend/app/products/models.py`; migrations in `backend/migrations/versions/`.
 
 **`products`**
 
@@ -111,7 +111,7 @@ CHECK constraints repeat the single-row schema rules, so writers other than the 
 
 ## 4. Endpoints
 
-In `backend/app/routers/products.py`.
+In `backend/app/products/router.py`.
 
 | Method | Path | Result |
 |---|---|---|
@@ -123,13 +123,13 @@ In `backend/app/routers/products.py`.
 
 **Conversion.** The API nests what the tables keep flat (`npk` is four columns; `frequency` is two), so `fill_product` and `product_to_read` convert by hand in both directions.
 
-**Duplicates are decided by the unique index**, not by a lookup before the insert, which two concurrent requests could both pass. `commit_or_conflict` (in `routers/common.py`) turns that index's violation into `409`; any other integrity error means validation let bad data through, so it becomes a `500`.
+**Duplicates are decided by the unique index**, not by a lookup before the insert, which two concurrent requests could both pass. `commit_or_conflict` (in `app/core/api.py`) turns that index's violation into `409`; any other integrity error means validation let bad data through, so it becomes a `500`.
 
 **Replacing directions on PUT.** SQLAlchemy inserts new rows before deleting old ones, so directions that keep their `use` or position would hit the unique indexes. The old directions are removed with one direct `DELETE ... WHERE product_id = ?`, inside `session.no_autoflush`, so no field change is sent early and a duplicate name still fails at commit as `409`.
 
 ## 5. AI draft from a label photo
 
-`POST /products/draft` (in `backend/app/routers/product_drafts.py`) uploads a photo and returns a draft. **Nothing is saved**: the user checks the draft and saves it with `POST /products`.
+`POST /products/draft` (in `backend/app/label_reading/router.py`) uploads a photo and returns a draft. **Nothing is saved**: the user checks the draft and saves it with `POST /products`.
 
 ```
 photo ─► size and format check ─► read_label (Claude) ─► LabelExtraction ─► draft_from_extraction ─► LabelDraftResponse
@@ -146,18 +146,18 @@ photo ─► size and format check ─► read_label (Claude) ─► LabelExtrac
 
 **Errors.** The model declining to read the image is `422` (try another photo); an answer that is cut off or not a valid extraction is `502`; the API being busy, unreachable, or rejecting our key or billing is `503`.
 
-Code: `backend/app/label_reader.py` (prompt, model call, cost), `backend/app/label_drafts.py` (draft), `backend/app/schemas.py` (`LabelExtraction`, `LabelDraftResponse`).
+Code, in `backend/app/label_reading/`: `reader.py` (prompt, model call, cost), `drafts.py` (draft), `schemas.py` (`LabelExtraction`, `LabelDraftResponse`), `router.py` (endpoint).
 
 ## 6. Tests
 
 | File | Covers |
 |---|---|
-| `tests/test_product_schema.py` | Every validation rule, including boundaries |
-| `tests/test_product_table.py`, `tests/test_label_direction_table.py` | Every CHECK, unique index, and cascade |
-| `tests/test_product_conversion.py` | API shape to tables and back, including replacing directions |
-| `tests/test_products_api.py` | The five endpoints and their status codes |
-| `tests/test_label_drafts.py` | LabelExtraction to draft: every gap becomes a problem, never a guess |
-| `tests/test_label_reader.py`, `tests/test_product_draft_api.py` | The model call and the draft endpoint, against a fake Claude client (no network, no cost) |
+| `tests/products/test_product_schema.py` | Every validation rule, including boundaries |
+| `tests/products/test_product_table.py`, `tests/products/test_label_direction_table.py` | Every CHECK, unique index, and cascade |
+| `tests/products/test_product_conversion.py` | API shape to tables and back, including replacing directions |
+| `tests/products/test_products_api.py` | The five endpoints and their status codes |
+| `tests/label_reading/test_label_drafts.py` | LabelExtraction to draft: every gap becomes a problem, never a guess |
+| `tests/label_reading/test_label_reader.py`, `tests/label_reading/test_product_draft_api.py` | The model call and the draft endpoint, against a fake Claude client (no network, no cost) |
 
 Every rule was also checked by a targeted mutation: break the code, confirm the test for that rule fails, restore.
 

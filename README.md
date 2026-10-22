@@ -93,18 +93,30 @@ python -m pytest -v         # run the test suite
 backend/
   app/
     main.py            # FastAPI app; loads the taxa list at startup
-    routers/
-      common.py        # shared helpers: 404 lookup, 409 on a unique index
-      products.py      # product endpoints and API <-> table conversion
-      growing_media.py # growing medium endpoints and conversion
-    schemas.py         # Pydantic models and validation rules
-    models.py          # SQLAlchemy tables and shared column types
-    database.py        # engine setup (SQLite foreign keys), session dependency
-    taxa.py            # loads and validates the taxa list
+    all_models.py      # imports every feature's tables, for Alembic
+    core/              # shared by every feature
+      config.py        # settings from environment variables and .env
+      database.py      # engine setup (SQLite foreign keys), session dependency
+      schemas.py       # shared Pydantic types (StrictModel, NonEmptyStr, ...)
+      columns.py       # shared column types (UTC datetimes, exact decimals)
+      api.py           # router helpers: 404 lookup, 409 on a unique index
+    products/          # each feature: schemas.py (Pydantic), models.py
+      schemas.py       #   (tables), router.py (endpoints and conversion)
+      models.py
+      router.py
+    label_reading/     # AI 1: label photo to product draft
+      schemas.py       # LabelExtraction, the draft response
+      reader.py        # prompt, Claude call, cost and latency record
+      drafts.py        # extraction to draft, with problems to fix
+      router.py        # POST /products/draft
+    growing_media/     # schemas.py, models.py, router.py
+    taxa/
+      schemas.py       # rules for the taxa list
+      loader.py        # loads and validates the taxa list once
   data/
     taxa.json          # reference list of genera and families, with sources
   migrations/          # Alembic migrations
-  tests/
+  tests/               # one folder per feature, like app/
 docs/
   ideas.md             # backlog of deferred ideas and why they were deferred
 ```

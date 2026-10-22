@@ -2,8 +2,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.routers import growing_media, product_drafts, products
-from app.taxa import get_taxa
+from app.growing_media.router import router as growing_media_router
+from app.label_reading.router import router as label_reading_router
+from app.products.router import router as products_router
+from app.taxa.loader import get_taxa
 
 
 @asynccontextmanager
@@ -13,9 +15,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Plant Care API", lifespan=lifespan)
-app.include_router(products.router)
-app.include_router(product_drafts.router)
-app.include_router(growing_media.router)
+app.include_router(products_router)
+app.include_router(label_reading_router)
+app.include_router(growing_media_router)
 
 
 @app.get("/health")

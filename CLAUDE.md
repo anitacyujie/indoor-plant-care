@@ -61,9 +61,10 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 ## Tech stack
 
 - Backend: Python + FastAPI, in `backend/`, virtual environment at `backend/.venv`, dependencies in `backend/requirements.txt` and `backend/requirements-dev.txt`
-- Validation: Pydantic schemas in `backend/app/schemas.py`
-- LLM: Anthropic Python SDK (`anthropic`, pinned to 1.x), default model `claude-opus-5-5`, set by `LABEL_MODEL`. Config in `backend/app/config.py` from environment variables and the git-ignored `backend/.env` (template: `backend/.env.example`).
-- Database: SQLite to start, PostgreSQL later; SQLAlchemy 2.0 ORM (models in `backend/app/models.py`), Alembic migrations in `backend/migrations/`
+- Code is packaged by feature: `backend/app/<feature>/` holds `schemas.py` (Pydantic), `models.py` (tables), and `router.py` (endpoints). Features: `products`, `label_reading`, `growing_media`, `taxa`. Shared pieces are in `app/core/` (config, database, shared types and columns, router helpers). Tests mirror this in `backend/tests/<feature>/`.
+- Validation: Pydantic schemas in each feature's `schemas.py`; shared types in `app/core/schemas.py`
+- LLM: Anthropic Python SDK (`anthropic`, pinned to 1.x), default model `claude-opus-5-5`, set by `LABEL_MODEL`. Config in `backend/app/core/config.py` from environment variables and the git-ignored `backend/.env` (template: `backend/.env.example`).
+- Database: SQLite to start, PostgreSQL later; SQLAlchemy 2.0 ORM (tables in each feature's `models.py`; `app/all_models.py` imports them all for Alembic), Alembic migrations in `backend/migrations/`
 - Frontend: React + Vite, PWA (later, in `frontend/`)
 - Tests: pytest (unit and API), Playwright (end-to-end)
 - Infra (later): Docker + docker-compose, GitHub Actions CI/CD, cloud deployment, Prometheus + Grafana
@@ -98,10 +99,10 @@ The owner is moving toward AI engineering roles, so AI features come early, each
 - **Product: done.**
   - Schema `ProductCreate` / `ProductRead`: NPK as `Decimal` (0-100, at most 2 decimal places, JSON numbers) with a required `basis`; the total is not checked, since P and K may be oxide equivalents. Frequency is `interval` (days) or `every_watering`. Several label directions each need a distinct `use` (case-insensitive).
   - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with CHECK constraints mirroring the schema.
-  - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/routers/products.py`.
+  - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/products/router.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
 - Medium components (`MediumComponent`) are a fixed list of ids (matched exactly, like an enum, including `pon` and `leca` for semi-hydro) plus `other` with a user-given name.
-- **GrowingMedium: done.** Schema, tables (`growing_media`, `growing_medium_components`; components have no position and are read most parts first, then by name), and `/growing-media` with the same five endpoints as products. Routers share `get_or_404` and `commit_or_conflict` from `app/routers/common.py`.
+- **GrowingMedium: done.** Schema, tables (`growing_media`, `growing_medium_components`; components have no position and are read most parts first, then by name), and `/growing-media` with the same five endpoints as products. Routers share `get_or_404` and `commit_or_conflict` from `app/core/api.py`.
   - Deleting a medium is unrestricted for now; once groups refer to media, a medium in use must be refused (409).
 - Group design agreed (see Data model).
 - Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
