@@ -70,6 +70,27 @@ def test_migrations_match_models_checks_and_indexes(engine, alembic_config):
         model_engine.dispose()
 
 
+def test_existing_directions_become_soil(engine, alembic_config):
+    command.upgrade(alembic_config, "8ecd6ca28407")  # just before application
+    with engine.begin() as connection:
+        connection.execute(text(
+            "INSERT INTO products (id, brand, name, type, npk_n, npk_p, npk_k, npk_basis, notes, created_at)"
+            " VALUES (1, 'Dyna-Gro', 'Foliage-Pro', 'liquid_fertilizer', 900, 300, 600, 'oxide', '',"
+            " '2026-10-21 00:00:00')"
+        ))
+        connection.execute(text(
+            "INSERT INTO product_label_directions"
+            " (product_id, position, amount, amount_unit, water_volume, water_unit, frequency_kind)"
+            " VALUES (1, 0, 0.25, 'tsp', 1, 'gal', 'every_watering')"
+        ))
+
+    command.upgrade(alembic_config, "head")
+
+    with engine.connect() as connection:
+        applications = connection.scalars(text("SELECT application FROM product_label_directions"))
+        assert list(applications) == ["soil"]
+
+
 def test_downgrade_removes_all_tables(engine, alembic_config):
     command.upgrade(alembic_config, "head")
     command.downgrade(alembic_config, "base")

@@ -20,6 +20,7 @@ EXTRACTION = {
     "npk_basis": "oxide",
     "label_directions": [{
         "source_text": "1/4 to 1/2 tsp per gallon every watering",
+        "application": "soil",
         "amount": 0.25, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
         "frequency_kind": "every_watering", "frequency_days": None, "use": None,
     }],

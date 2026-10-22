@@ -53,6 +53,11 @@ LabelFrequency = Annotated[
 
 PositiveAmount = Annotated[float, Field(gt=0)]
 
+# How a direction is applied: watering plants in soil, feeding a hydroponic
+# (or semi-hydro) reservoir, or spraying the leaves. A care plan picks the
+# directions that fit its group's growing medium by this field.
+Application = Literal["soil", "hydroponic", "foliar"]
+
 
 class LabelDirection(StrictModel):
     """One dose and how often to apply it, in the units printed on the label.
@@ -61,6 +66,7 @@ class LabelDirection(StrictModel):
     1 tsp per gallon monthly, so dose and frequency are kept together.
     """
 
+    application: Application
     amount: PositiveAmount
     amount_unit: Literal["ml", "g", "tsp", "tbsp"]
     water_volume: PositiveAmount
@@ -68,6 +74,13 @@ class LabelDirection(StrictModel):
     frequency: LabelFrequency
     # What this direction is for, as printed, e.g. "maintenance".
     use: NonEmptyStr | None = None
+
+    @model_validator(mode="after")
+    def check_foliar_is_not_every_watering(self) -> Self:
+        # A leaf spray is not part of watering.
+        if self.application == "foliar" and self.frequency.kind == "every_watering":
+            raise ValueError("a foliar direction cannot be every watering")
+        return self
 
 
 ProductType = Literal["liquid_fertilizer", "soluble_powder", "additive"]
@@ -91,15 +104,24 @@ class ProductCreate(StrictModel):
 
     @model_validator(mode="after")
     def check_several_directions_are_named(self) -> Self:
-        """With several directions, each needs a distinct use to choose by."""
-        if len(self.label_directions) < 2:
-            return self
-        uses = [direction.use for direction in self.label_directions]
-        if None in uses:
-            raise ValueError("each label direction needs a use when there are several")
-        # casefold: "Maintenance" and "maintenance" are the same use.
-        if len({use.casefold() for use in uses}) != len(uses):
-            raise ValueError("label direction uses must be unique")
+        """With several directions for one application, each needs a distinct use.
+
+        Directions for different applications are told apart by the
+        application, so one soil and one hydroponic direction need no use.
+        """
+        uses_by_application: dict[str, list[str | None]] = {}
+        for direction in self.label_directions:
+            uses_by_application.setdefault(direction.application, []).append(direction.use)
+        for application, uses in uses_by_application.items():
+            if len(uses) < 2:
+                continue
+            if None in uses:
+                raise ValueError(
+                    f"each {application} direction needs a use when there are several"
+                )
+            # casefold: "Maintenance" and "maintenance" are the same use.
+            if len({use.casefold() for use in uses}) != len(uses):
+                raise ValueError(f"{application} direction uses must be unique")
         return self
 
 

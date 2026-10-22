@@ -28,6 +28,7 @@ def make_direction(**fields):
     return ProductLabelDirection(
         **{
             "position": 0,
+            "application": "soil",
             "amount": 0.25,
             "amount_unit": "tsp",
             "water_volume": 1.0,
@@ -132,7 +133,7 @@ def test_deleting_direction_keeps_product(session, product):
 
 @pytest.mark.parametrize(
     "column",
-    ["product_id", "position", "amount", "amount_unit", "water_volume", "water_unit", "frequency_kind"],
+    ["product_id", "position", "application", "amount", "amount_unit", "water_volume", "water_unit", "frequency_kind"],
 )
 def test_required_column(session, product, column):
     direction = make_direction(**({"product_id": product.id} | {column: None}))
@@ -158,6 +159,22 @@ def test_same_position_on_other_product_accepted(session, product):
     session.add(other)
     add_direction(session, product, position=0)
     add_direction(session, other, position=0)
+
+
+# --- application
+
+
+@pytest.mark.parametrize("application", ["soil", "hydroponic", "foliar"])
+def test_application_accepts_each_value(session, product, application):
+    add_direction(session, product, application=application, frequency_kind="interval", frequency_days=14)
+
+
+def test_unknown_application_rejected(session, product):
+    rejected(session, product, "valid_application", application="drench")
+
+
+def test_foliar_every_watering_rejected(session, product):
+    rejected(session, product, "foliar_not_every_watering", application="foliar", frequency_kind="every_watering")
 
 
 # --- amounts and units
@@ -208,6 +225,12 @@ def test_blank_use_rejected(session, product, blank):
 def test_duplicate_use_in_product_rejected(session, product, second):
     add_direction(session, product, position=0, use="maintenance")
     rejected(session, product, "UNIQUE", position=1, use=second)
+
+
+def test_same_use_in_other_application_accepted(session, product):
+    add_direction(session, product, position=0, application="soil")
+    add_direction(session, product, position=1, application="hydroponic")
+    assert count_directions(session) == 2
 
 
 def test_same_use_on_other_product_accepted(session, product):

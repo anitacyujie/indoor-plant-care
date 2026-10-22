@@ -107,6 +107,7 @@ def changed(product: dict) -> dict:
         "npk": {"n": 7, "p": 9, "k": 5, "basis": "elemental"},
         "label_directions": [
             {
+                "application": "hydroponic",
                 "amount": 5,
                 "amount_unit": "ml",
                 "water_volume": 1,

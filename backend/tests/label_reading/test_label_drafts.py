@@ -11,6 +11,7 @@ from app.label_reading.schemas import LabelExtraction
 
 DIRECTION = {
     "source_text": "1/4 tsp per gallon every watering",
+    "application": "soil",
     "amount": 0.25,
     "amount_unit": "tsp",
     "water_volume": 1,
@@ -83,6 +84,11 @@ def test_interval_frequency_is_mapped(extraction):
 
 
 
+def test_application_is_mapped(extraction):
+    extraction["label_directions"][0]["application"] = "hydroponic"
+    assert draft(extraction).product.label_directions[0].application == "hydroponic"
+
+
 def test_named_directions_keep_their_use(extraction):
     monthly = DIRECTION | {"frequency_kind": "interval", "frequency_days": 30, "use": "monthly"}
     extraction["label_directions"] = [DIRECTION | {"use": "maintenance"}, monthly]
@@ -150,6 +156,11 @@ def test_fertilizer_without_npk_is_a_product_level_problem(extraction):
 def test_missing_dose_field_is_a_problem(extraction, field):
     extraction["label_directions"][0][field] = None  # e.g. a unit like "capful"
     assert locations(extraction) == [f"label_directions.0.{field}"]
+
+
+def test_missing_application_is_a_problem(extraction):
+    extraction["label_directions"][0]["application"] = None
+    assert locations(extraction) == ["label_directions.0.application"]
 
 
 def test_missing_frequency_is_a_problem(extraction):

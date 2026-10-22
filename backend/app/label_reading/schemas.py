@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 from pydantic import Field, PlainSerializer
 
 from app.core.schemas import StrictModel, decimal_to_json_number
-from app.products.schemas import NpkBasis, ProductCreate, ProductType
+from app.products.schemas import Application, NpkBasis, ProductCreate, ProductType
 
 # Looser than ProductCreate on purpose: a field the label does not show, or
 # that cannot be read, stays None instead of being guessed. The server then
@@ -23,6 +23,10 @@ class ExtractedNpk(StrictModel):
 
 class ExtractedDirection(StrictModel):
     source_text: str = Field(description="This direction exactly as printed on the label")
+    application: Application | None = Field(
+        description="soil: watering plants in soil; hydroponic: a hydroponic reservoir; "
+        "foliar: a leaf spray"
+    )
     amount: float | None = Field(description="Dose amount; convert fractions like 1/4 to 0.25")
     amount_unit: Literal["ml", "g", "tsp", "tbsp"] | None = Field(
         description="null if the label uses another unit (e.g. a capful)"

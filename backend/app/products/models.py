@@ -85,6 +85,13 @@ class ProductLabelDirection(Base):
     __table_args__ = (
         UniqueConstraint("product_id", "position", name="uq_direction_position"),
         CheckConstraint("position >= 0", name="position_not_negative"),
+        CheckConstraint(
+            "application IN ('soil', 'hydroponic', 'foliar')", name="valid_application"
+        ),
+        CheckConstraint(
+            "application <> 'foliar' OR frequency_kind <> 'every_watering'",
+            name="foliar_not_every_watering",
+        ),
         CheckConstraint("amount > 0", name="amount_positive"),
         CheckConstraint("amount_unit IN ('ml', 'g', 'tsp', 'tbsp')", name="valid_amount_unit"),
         CheckConstraint("water_volume > 0", name="water_volume_positive"),
@@ -104,24 +111,27 @@ class ProductLabelDirection(Base):
         ForeignKey("products.id", ondelete="CASCADE"), index=True
     )
     position: Mapped[int]  # order on the label; a table has no order of its own
+    application: Mapped[str]
     amount: Mapped[float]
     amount_unit: Mapped[str]
     water_volume: Mapped[float]
     water_unit: Mapped[str]
     frequency_kind: Mapped[str]
     frequency_days: Mapped[int | None]
-    # "Several directions each need a use" spans rows, which a CHECK cannot
-    # see; Pydantic enforces it.
+    # "Several directions for one application each need a use" spans rows,
+    # which a CHECK cannot see; Pydantic enforces it.
     use: Mapped[str | None]
 
     product: Mapped[Product] = relationship(back_populates="label_directions")
 
 
-# A use is unique within a product, ignoring case. NULLs never collide, so
+# A use is unique within a product's application, ignoring case: a soil and a
+# hydroponic direction may both be "maintenance". NULLs never collide, so
 # several unnamed directions are allowed here.
 Index(
     "uq_direction_use",
     ProductLabelDirection.product_id,
+    ProductLabelDirection.application,
     func.lower(ProductLabelDirection.use),
     unique=True,
 )

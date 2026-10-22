@@ -60,6 +60,7 @@ def extraction_to_product_data(extraction: LabelExtraction) -> dict:
 
 def direction_data(direction: ExtractedDirection) -> dict:
     data = without_none({
+        "application": direction.application,
         "amount": direction.amount,
         "amount_unit": direction.amount_unit,
         "water_volume": direction.water_volume,

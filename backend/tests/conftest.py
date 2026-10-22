@@ -19,6 +19,7 @@ VALID_PRODUCT = {
     "npk": {"n": 9, "p": 3, "k": 6, "basis": "oxide"},
     "label_directions": [
         {
+            "application": "soil",
             "amount": 0.25,
             "amount_unit": "tsp",
             "water_volume": 1,
@@ -27,6 +28,7 @@ VALID_PRODUCT = {
             "use": "maintenance",
         },
         {
+            "application": "soil",
             "amount": 1,
             "amount_unit": "tsp",
             "water_volume": 1,

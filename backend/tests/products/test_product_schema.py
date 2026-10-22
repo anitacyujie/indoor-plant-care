@@ -191,6 +191,34 @@ def test_unknown_unit_rejected(product, field, bad_unit):
     rejects(product)
 
 
+# --- application: how a direction is applied
+
+
+# Direction 1 is monthly, so foliar is allowed there too.
+@pytest.mark.parametrize("application", ["soil", "hydroponic", "foliar"])
+def test_application_accepts_each_value(product, application):
+    product["label_directions"][1]["application"] = application
+    result = ProductCreate.model_validate(product)
+    assert result.label_directions[1].application == application
+
+
+@pytest.mark.parametrize("bad", ["Soil", "drench", None])
+def test_unknown_application_rejected(product, bad):
+    product["label_directions"][0]["application"] = bad
+    rejects(product)
+
+
+def test_application_is_required(product):
+    del product["label_directions"][0]["application"]
+    rejects(product)
+
+
+def test_foliar_every_watering_rejected(product):
+    assert product["label_directions"][0]["frequency"] == {"kind": "every_watering"}
+    product["label_directions"][0]["application"] = "foliar"
+    rejects(product)
+
+
 # --- LabelFrequency: "kind" picks the model
 
 
@@ -228,7 +256,7 @@ def test_kind_is_required():
         frequency.validate_python({"days": 7})
 
 
-# --- use: needed to tell several directions apart
+# --- use: needed to tell several directions for one application apart
 
 
 def test_single_direction_needs_no_use(product):
@@ -239,6 +267,27 @@ def test_single_direction_needs_no_use(product):
 
 def test_several_directions_each_need_a_use(product):
     del product["label_directions"][1]["use"]
+    rejects(product)
+
+
+def test_one_direction_per_application_needs_no_use(product):
+    for direction in product["label_directions"]:
+        del direction["use"]
+    product["label_directions"][1]["application"] = "hydroponic"
+    ProductCreate.model_validate(product)
+
+
+def test_same_use_in_different_applications_accepted(product):
+    product["label_directions"][1] |= {"application": "hydroponic", "use": "maintenance"}
+    ProductCreate.model_validate(product)
+
+
+# The two soil directions break the rule; a single hydroponic direction
+# checked before them does not end the check early.
+def test_unnamed_soil_direction_rejected_beside_other_application(product):
+    del product["label_directions"][1]["use"]
+    hydroponic = dict(product["label_directions"][0], application="hydroponic")
+    product["label_directions"].insert(0, hydroponic)
     rejects(product)
 
 

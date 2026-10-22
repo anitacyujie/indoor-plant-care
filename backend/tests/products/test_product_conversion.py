@@ -61,6 +61,13 @@ def test_frequency_maps_to_kind_and_days(session, product):
     assert columns == [("every_watering", None), ("interval", 30)]
 
 
+def test_application_maps_to_its_column(session, product):
+    product["label_directions"][1]["application"] = "foliar"
+    saved = save_and_reload(session, product)
+    assert [d.application for d in saved.label_directions] == ["soil", "foliar"]
+    assert [d.application for d in product_to_read(saved).label_directions] == ["soil", "foliar"]
+
+
 def test_directions_keep_their_order(session, product):
     third = dict(product["label_directions"][0], use="third")
     product["label_directions"].append(third)

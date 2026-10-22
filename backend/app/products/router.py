@@ -72,6 +72,7 @@ def direction_to_row(direction: LabelDirection, position: int) -> ProductLabelDi
             kind, frequency_days = "every_watering", None
     return ProductLabelDirection(
         position=position,
+        application=direction.application,
         amount=direction.amount,
         amount_unit=direction.amount_unit,
         water_volume=direction.water_volume,
@@ -109,6 +110,7 @@ def row_to_direction(row: ProductLabelDirection) -> LabelDirection:
     else:
         frequency = EveryWateringFrequency(kind="every_watering")
     return LabelDirection(
+        application=row.application,
         amount=row.amount,
         amount_unit=row.amount_unit,
         water_volume=row.water_volume,
