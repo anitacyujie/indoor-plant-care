@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 
 from app.products.models import Product, ProductLabelDirection
 from app.products.router import fill_product, product_to_read
-from app.products.schemas import ProductCreate
+from app.products.schemas import AsNeededFrequency, ProductCreate
 
 
 def save_and_reload(session, data: dict) -> Product:
@@ -59,6 +59,13 @@ def test_frequency_maps_to_kind_and_days(session, product):
     saved = save_and_reload(session, product)
     columns = [(d.frequency_kind, d.frequency_days) for d in saved.label_directions]
     assert columns == [("every_watering", None), ("interval", 30)]
+
+
+def test_as_needed_maps_to_kind_without_days(session, product):
+    product["label_directions"][1]["frequency"] = {"kind": "as_needed"}
+    saved = save_and_reload(session, product)
+    assert (saved.label_directions[1].frequency_kind, saved.label_directions[1].frequency_days) == ("as_needed", None)
+    assert product_to_read(saved).label_directions[1].frequency == AsNeededFrequency(kind="as_needed")
 
 
 def test_application_maps_to_its_column(session, product):

@@ -33,8 +33,9 @@ class ExtractedDirection(StrictModel):
     )
     water_volume: float | None = Field(description="Volume of water the dose goes into")
     water_unit: Literal["L", "gal"] | None = Field(description="null if another unit")
-    frequency_kind: Literal["interval", "every_watering"] | None = Field(
-        description="interval: every N days; every_watering: with each watering"
+    frequency_kind: Literal["interval", "every_watering", "as_needed"] | None = Field(
+        description="interval: every N days; every_watering: with each watering; "
+        "as_needed: no fixed schedule"
     )
     frequency_days: int | None = Field(
         description='Days between uses for interval, e.g. "every 2 weeks" is 14; null otherwise'

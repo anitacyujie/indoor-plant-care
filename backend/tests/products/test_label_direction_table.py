@@ -202,8 +202,8 @@ def test_unknown_unit_rejected(session, product, column, bad_unit, constraint):
 
 @pytest.mark.parametrize(
     "kind, days",
-    [("interval", None), ("interval", 0), ("every_watering", 7), ("monthly", None), ("monthly", 30)],
-    ids=["interval-no-days", "interval-zero-days", "every-watering-with-days", "unknown-kind", "unknown-kind-with-days"],
+    [("interval", None), ("interval", 0), ("every_watering", 7), ("as_needed", 7), ("monthly", None), ("monthly", 30)],
+    ids=["interval-no-days", "interval-zero-days", "every-watering-with-days", "as-needed-with-days", "unknown-kind", "unknown-kind-with-days"],
 )
 def test_invalid_frequency_rejected(session, product, kind, days):
     rejected(session, product, "valid_frequency", frequency_kind=kind, frequency_days=days)
@@ -211,6 +211,10 @@ def test_invalid_frequency_rejected(session, product, kind, days):
 
 def test_interval_accepts_one_day(session, product):
     add_direction(session, product, frequency_kind="interval", frequency_days=1)
+
+
+def test_as_needed_accepted(session, product):
+    add_direction(session, product, frequency_kind="as_needed", frequency_days=None)
 
 
 # --- use

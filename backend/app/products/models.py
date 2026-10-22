@@ -100,7 +100,7 @@ class ProductLabelDirection(Base):
         # IS NOT NULL is needed: NULL > 0 is NULL, and a CHECK only rejects FALSE.
         CheckConstraint(
             "(frequency_kind = 'interval' AND frequency_days IS NOT NULL AND frequency_days > 0)"
-            " OR (frequency_kind = 'every_watering' AND frequency_days IS NULL)",
+            " OR (frequency_kind IN ('every_watering', 'as_needed') AND frequency_days IS NULL)",
             name="valid_frequency",
         ),
         CheckConstraint("use IS NULL OR length(trim(use)) > 0", name="use_not_blank"),

@@ -84,6 +84,11 @@ def test_interval_frequency_is_mapped(extraction):
 
 
 
+def test_as_needed_frequency_is_mapped(extraction):
+    extraction["label_directions"][0] |= {"frequency_kind": "as_needed", "frequency_days": None}
+    assert draft(extraction).product.label_directions[0].frequency.kind == "as_needed"
+
+
 def test_application_is_mapped(extraction):
     extraction["label_directions"][0]["application"] = "hydroponic"
     assert draft(extraction).product.label_directions[0].application == "hydroponic"

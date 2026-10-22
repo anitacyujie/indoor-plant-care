@@ -11,6 +11,7 @@ from sqlalchemy.orm import object_session, selectinload
 from app.core.api import SessionDep, commit_or_conflict, get_or_404
 from app.products.models import Product, ProductLabelDirection
 from app.products.schemas import (
+    AsNeededFrequency,
     EveryWateringFrequency,
     IntervalFrequency,
     LabelDirection,
@@ -70,6 +71,8 @@ def direction_to_row(direction: LabelDirection, position: int) -> ProductLabelDi
             kind, frequency_days = "interval", days
         case EveryWateringFrequency():
             kind, frequency_days = "every_watering", None
+        case AsNeededFrequency():
+            kind, frequency_days = "as_needed", None
     return ProductLabelDirection(
         position=position,
         application=direction.application,
@@ -105,10 +108,13 @@ def product_to_read(product: Product) -> ProductRead:
 
 
 def row_to_direction(row: ProductLabelDirection) -> LabelDirection:
-    if row.frequency_kind == "interval":
-        frequency = IntervalFrequency(kind="interval", days=row.frequency_days)
-    else:
-        frequency = EveryWateringFrequency(kind="every_watering")
+    match row.frequency_kind:
+        case "interval":
+            frequency = IntervalFrequency(kind="interval", days=row.frequency_days)
+        case "every_watering":
+            frequency = EveryWateringFrequency(kind="every_watering")
+        case "as_needed":
+            frequency = AsNeededFrequency(kind="as_needed")
     return LabelDirection(
         application=row.application,
         amount=row.amount,

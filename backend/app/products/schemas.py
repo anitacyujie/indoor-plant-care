@@ -46,9 +46,16 @@ class EveryWateringFrequency(StrictModel):
     kind: Literal["every_watering"]
 
 
+class AsNeededFrequency(StrictModel):
+    """No fixed schedule, e.g. a leaf spray for deficient plants."""
+
+    kind: Literal["as_needed"]
+
+
 # "kind" decides which model validates the rest, like a sealed interface.
 LabelFrequency = Annotated[
-    IntervalFrequency | EveryWateringFrequency, Field(discriminator="kind")
+    IntervalFrequency | EveryWateringFrequency | AsNeededFrequency,
+    Field(discriminator="kind"),
 ]
 
 PositiveAmount = Annotated[float, Field(gt=0)]

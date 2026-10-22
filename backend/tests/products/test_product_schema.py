@@ -4,6 +4,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from app.products.schemas import (
+    AsNeededFrequency,
     EveryWateringFrequency,
     IntervalFrequency,
     LabelFrequency,
@@ -219,6 +220,11 @@ def test_foliar_every_watering_rejected(product):
     rejects(product)
 
 
+def test_foliar_as_needed_accepted(product):
+    product["label_directions"][0] |= {"application": "foliar", "frequency": {"kind": "as_needed"}}
+    ProductCreate.model_validate(product)
+
+
 # --- LabelFrequency: "kind" picks the model
 
 
@@ -243,6 +249,15 @@ def test_interval_requires_days():
 def test_every_watering_rejects_days():
     with pytest.raises(ValidationError):
         frequency.validate_python({"kind": "every_watering", "days": 7})
+
+
+def test_as_needed_accepted():
+    assert isinstance(frequency.validate_python({"kind": "as_needed"}), AsNeededFrequency)
+
+
+def test_as_needed_rejects_days():
+    with pytest.raises(ValidationError):
+        frequency.validate_python({"kind": "as_needed", "days": 7})
 
 
 @pytest.mark.parametrize("bad_kind", ["monthly", "Interval", None])

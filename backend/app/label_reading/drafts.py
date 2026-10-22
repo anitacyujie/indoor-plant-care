@@ -70,8 +70,8 @@ def direction_data(direction: ExtractedDirection) -> dict:
     match direction.frequency_kind:
         case "interval":
             data["frequency"] = without_none({"kind": "interval", "days": direction.frequency_days})
-        case "every_watering":
-            data["frequency"] = {"kind": "every_watering"}
+        case "every_watering" | "as_needed":
+            data["frequency"] = {"kind": direction.frequency_kind}
     return data
 
 
