@@ -259,6 +259,19 @@ class ExtractedDirection(StrictModel):
     use: str | None = Field(description='What this direction is for, e.g. "maintenance"; null if not named')
 
 
+# Only indoor watering directions are read for now; the rest are listed, with
+# why, so the user can see what was left out.
+SkipReason = Literal["outdoor", "equipment", "foliar", "other"]
+
+
+class SkippedDirection(StrictModel):
+    source_text: str = Field(description="The skipped instruction exactly as printed")
+    reason: SkipReason = Field(
+        description="outdoor: for outdoor plants; equipment: a stock solution for a siphon "
+        "mixer, injector, or proportioner; foliar: a leaf spray; other: anything else"
+    )
+
+
 class LabelExtraction(StrictModel):
     brand: str | None
     name: str | None
@@ -273,6 +286,15 @@ class LabelExtraction(StrictModel):
     uncertain_fields: list[str] = Field(
         description='Fields read but not certain (e.g. glare), as paths like "npk.p" or '
         '"label_directions.0.amount"'
+    )
+    # Shown to the user, who may raise the value: the app takes the lower end
+    # of a range on purpose (better to underfeed than to overfeed).
+    lower_end_fields: list[str] = Field(
+        description="Fields where the label gives a range and the lower end was used, as paths "
+        'like "label_directions.0.amount" or "label_directions.1.frequency_days"'
+    )
+    skipped_directions: list[SkippedDirection] = Field(
+        description="Dosing instructions on the label that were not put in label_directions"
     )
 
 

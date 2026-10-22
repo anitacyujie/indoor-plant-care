@@ -10,7 +10,8 @@ from types import SimpleNamespace
 
 import httpx2
 
-# A complete reading of a label.
+# A complete reading of a label: one indoor direction whose dose was a range
+# (the lower end used), and one outdoor direction skipped.
 EXTRACTION = {
     "brand": "Dyna-Gro",
     "name": "Foliage-Pro",
@@ -18,12 +19,16 @@ EXTRACTION = {
     "npk": {"n": 9, "p": 3, "k": 6},
     "npk_basis": "oxide",
     "label_directions": [{
-        "source_text": "1/4 tsp per gallon every watering",
+        "source_text": "1/4 to 1/2 tsp per gallon every watering",
         "amount": 0.25, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
         "frequency_kind": "every_watering", "frequency_days": None, "use": None,
     }],
     "notes": None,
     "uncertain_fields": [],
+    "lower_end_fields": ["label_directions.0.amount"],
+    "skipped_directions": [
+        {"source_text": "For outdoor plants use 1/2 tsp every time you water.", "reason": "outdoor"},
+    ],
 }
 
 

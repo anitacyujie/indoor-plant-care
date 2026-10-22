@@ -53,6 +53,16 @@ def test_incomplete_label_gives_a_draft_with_problems(client, model):
     assert [p["location"] for p in body["problems"]] == ["npk.basis"]
 
 
+
+# What the UI needs to explain the draft: ranges taken at the lower end and
+# directions that were left out.
+def test_draft_tells_which_values_were_ranges_and_what_was_skipped(client, model):
+    extraction = upload(client).json()["extraction"]
+    assert extraction["lower_end_fields"] == ["label_directions.0.amount"]
+    assert extraction["skipped_directions"] == [
+        {"source_text": "For outdoor plants use 1/2 tsp every time you water.", "reason": "outdoor"},
+    ]
+
 def test_response_includes_the_call(client, model):
     call = upload(client).json()["call"]
     assert call["model_served"] == "claude-opus-5-5"

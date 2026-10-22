@@ -30,6 +30,8 @@ COMPLETE = {
     "label_directions": [DIRECTION],
     "notes": "Urea-free.",
     "uncertain_fields": [],
+    "lower_end_fields": [],
+    "skipped_directions": [],
 }
 
 
@@ -103,6 +105,17 @@ def test_uncertain_fields_do_not_block_a_ready_draft(extraction):
     assert result.product is not None
     assert result.extraction.uncertain_fields == ["npk.p"]
 
+
+
+# Notes for the user: they change nothing about the draft itself.
+def test_lower_end_and_skipped_directions_do_not_block_a_ready_draft(extraction):
+    extraction["lower_end_fields"] = ["label_directions.0.amount"]
+    extraction["skipped_directions"] = [{"source_text": "SIPHON MIXER: 1-3 fl. oz.", "reason": "equipment"}]
+    result = draft(extraction)
+    assert result.product is not None
+    assert result.extraction.lower_end_fields == ["label_directions.0.amount"]
+    assert result.extraction.skipped_directions[0].reason == "equipment"
+    assert len(result.product.label_directions) == 1  # a skipped direction never becomes one
 
 # --- what the label did not show becomes a problem, never a guess
 
@@ -182,10 +195,24 @@ def test_extraction_rejects_unknown_fields(extraction):
         LabelExtraction.model_validate(extraction)
 
 
+
+@pytest.mark.parametrize("reason", ["outdoor", "equipment", "foliar", "other"])
+def test_skipped_direction_accepts_each_reason(extraction, reason):
+    extraction["skipped_directions"] = [{"source_text": "x", "reason": reason}]
+    LabelExtraction.model_validate(extraction)
+
+
+@pytest.mark.parametrize("reason", ["hydroponic", "Outdoor", None])
+def test_skipped_direction_rejects_unknown_reason(extraction, reason):
+    extraction["skipped_directions"] = [{"source_text": "x", "reason": reason}]
+    with pytest.raises(ValidationError):
+        LabelExtraction.model_validate(extraction)
+
 # Structured outputs need every object closed and every field listed as
 # required (null stands for "not on the label").
 def test_extraction_schema_is_closed_and_fully_required():
     schema = LabelExtraction.model_json_schema()
+    assert set(schema["$defs"]) == {"ExtractedNpk", "ExtractedDirection", "SkippedDirection"}
     objects = [schema, *schema["$defs"].values()]
     for obj in objects:
         assert obj["additionalProperties"] is False
