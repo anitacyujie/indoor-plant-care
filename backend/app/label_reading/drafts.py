@@ -66,6 +66,7 @@ def direction_data(direction: ExtractedDirection) -> dict:
         "water_volume": direction.water_volume,
         "water_unit": direction.water_unit,
         "use": direction.use,
+        "details": direction.details,
     })
     match direction.frequency_kind:
         case "interval":

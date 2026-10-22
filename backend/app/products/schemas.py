@@ -81,6 +81,9 @@ class LabelDirection(StrictModel):
     frequency: LabelFrequency
     # What this direction is for, as printed, e.g. "maintenance".
     use: NonEmptyStr | None = None
+    # Conditions the fields above cannot hold, e.g. "first 2-3 waterings only"
+    # or "rinse leaves with fresh water the next day". For the user to read.
+    details: str = ""
 
     @model_validator(mode="after")
     def check_foliar_is_not_every_watering(self) -> Self:

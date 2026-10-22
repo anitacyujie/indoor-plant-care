@@ -121,6 +121,7 @@ class ProductLabelDirection(Base):
     # "Several directions for one application each need a use" spans rows,
     # which a CHECK cannot see; Pydantic enforces it.
     use: Mapped[str | None]
+    details: Mapped[str] = mapped_column(default="")
 
     product: Mapped[Product] = relationship(back_populates="label_directions")
 

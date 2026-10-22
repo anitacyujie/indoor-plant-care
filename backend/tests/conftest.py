@@ -26,6 +26,7 @@ VALID_PRODUCT = {
             "water_unit": "gal",
             "frequency": {"kind": "every_watering"},
             "use": "maintenance",
+            "details": "",
         },
         {
             "application": "soil",
@@ -35,6 +36,7 @@ VALID_PRODUCT = {
             "water_unit": "gal",
             "frequency": {"kind": "interval", "days": 30},
             "use": "monthly feeding",
+            "details": "",
         },
     ],
     "notes": "Urea-free.",

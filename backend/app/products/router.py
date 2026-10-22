@@ -83,6 +83,7 @@ def direction_to_row(direction: LabelDirection, position: int) -> ProductLabelDi
         frequency_kind=kind,
         frequency_days=frequency_days,
         use=direction.use,
+        details=direction.details,
     )
 
 
@@ -123,6 +124,7 @@ def row_to_direction(row: ProductLabelDirection) -> LabelDirection:
         water_unit=row.water_unit,
         frequency=frequency,
         use=row.use,
+        details=row.details,
     )
 
 

@@ -68,6 +68,13 @@ def test_as_needed_maps_to_kind_without_days(session, product):
     assert product_to_read(saved).label_directions[1].frequency == AsNeededFrequency(kind="as_needed")
 
 
+def test_details_map_to_their_column(session, product):
+    product["label_directions"][1]["details"] = "First 2-3 waterings only."
+    saved = save_and_reload(session, product)
+    assert [d.details for d in saved.label_directions] == ["", "First 2-3 waterings only."]
+    assert product_to_read(saved).label_directions[1].details == "First 2-3 waterings only."
+
+
 def test_application_maps_to_its_column(session, product):
     product["label_directions"][1]["application"] = "foliar"
     saved = save_and_reload(session, product)

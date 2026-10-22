@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import func, insert, select
 from sqlalchemy.exc import IntegrityError
 
 from app.products.models import Product, ProductLabelDirection
@@ -140,6 +140,27 @@ def test_required_column(session, product, column):
     session.add(direction)
     with pytest.raises(IntegrityError, match=f"NOT NULL.*{column}"):
         session.commit()
+
+
+# --- details
+
+
+def test_details_default_to_empty(session, product):
+    direction = add_direction(session, product)
+    session.expire_all()
+    assert direction.details == ""
+
+
+# The ORM replaces None with the column's default, so the NULL is sent with a
+# direct INSERT to reach the NOT NULL rule.
+def test_details_cannot_be_null(session, product):
+    row = {
+        "product_id": product.id, "position": 0, "application": "soil", "amount": 0.25,
+        "amount_unit": "tsp", "water_volume": 1.0, "water_unit": "gal",
+        "frequency_kind": "every_watering", "details": None,
+    }
+    with pytest.raises(IntegrityError, match="NOT NULL.*details"):
+        session.execute(insert(ProductLabelDirection).values(row))
 
 
 # --- position

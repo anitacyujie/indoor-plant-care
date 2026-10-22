@@ -113,6 +113,7 @@ def changed(product: dict) -> dict:
                 "water_volume": 1,
                 "water_unit": "L",
                 "frequency": {"kind": "interval", "days": 14},
+                "details": "",
             }
         ],
     }

@@ -41,6 +41,10 @@ class ExtractedDirection(StrictModel):
         description='Days between uses for interval, e.g. "every 2 weeks" is 14; null otherwise'
     )
     use: str | None = Field(description='What this direction is for, e.g. "maintenance"; null if not named')
+    details: str | None = Field(
+        description='Conditions printed with this direction that the other fields cannot hold, '
+        'e.g. "first 2-3 waterings only"; null if none'
+    )
 
 
 # Only indoor watering directions are read for now; the rest are listed, with

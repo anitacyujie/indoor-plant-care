@@ -321,6 +321,11 @@ def test_several_directions_reject_duplicate_use(product, first, second):
     rejects(product)
 
 
+def test_details_default_to_empty(product):
+    del product["label_directions"][0]["details"]
+    assert ProductCreate.model_validate(product).label_directions[0].details == ""
+
+
 @pytest.mark.parametrize("blank", ["", "   "])
 def test_use_rejects_blank(product, blank):
     product["label_directions"] = product["label_directions"][:1]

@@ -19,6 +19,7 @@ DIRECTION = {
     "frequency_kind": "every_watering",
     "frequency_days": None,
     "use": None,
+    "details": None,
 }
 
 # A label read completely: one direction, NPK with its basis.
@@ -87,6 +88,16 @@ def test_interval_frequency_is_mapped(extraction):
 def test_as_needed_frequency_is_mapped(extraction):
     extraction["label_directions"][0] |= {"frequency_kind": "as_needed", "frequency_days": None}
     assert draft(extraction).product.label_directions[0].frequency.kind == "as_needed"
+
+
+def test_details_are_mapped(extraction):
+    extraction["label_directions"][0]["details"] = "First 2-3 waterings only."
+    assert draft(extraction).product.label_directions[0].details == "First 2-3 waterings only."
+
+
+def test_missing_details_become_empty(extraction):
+    assert extraction["label_directions"][0]["details"] is None
+    assert draft(extraction).product.label_directions[0].details == ""
 
 
 def test_application_is_mapped(extraction):
