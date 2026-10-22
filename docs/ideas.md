@@ -19,6 +19,16 @@ Liquid labels may state nutrient percentages by weight (w/w) or by weight per vo
 - **Why:** turning a dose in ml into grams of a nutrient needs w/v, or w/w plus the liquid's density. It does not affect NPK range checks.
 - **When:** when dose math is added (e.g., nutrients delivered per watering).
 
+### Secondary nutrients and micronutrients
+Labels list calcium, magnesium, sulfur, and micronutrients (Fe, Mn, Zn, Cu, B, Mo) in the guaranteed analysis. For now the label reader puts them in `notes`.
+- **Why:** growers ask whether a fertilizer already has Ca and Mg (so no separate CalMag is needed); structured values could answer that and compare products.
+- **When:** when product comparison or feeding advice needs them.
+
+### Keep the upper end of a range
+A range on the label ("2 to 3 tsp") is saved as its lower end, flagged in the draft. The upper end is lost once saved.
+- **Idea:** an optional `amount_max` (and a shortest interval) on label directions, so a care plan can show the allowed range.
+- **When:** if users want to see how far they may raise a dose.
+
 ## Input checks
 
 ### NPK soft warnings

@@ -31,10 +31,10 @@ Defined in `backend/app/products/schemas.py`. `ProductCreate` is what the API ac
   "type": "liquid_fertilizer",
   "npk": {"n": 9, "p": 3, "k": 6, "basis": "oxide"},
   "label_directions": [
-    {"amount": 0.25, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
-     "frequency": {"kind": "every_watering"}, "use": "maintenance"},
-    {"amount": 1, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
-     "frequency": {"kind": "interval", "days": 30}, "use": "monthly"}
+    {"application": "soil", "amount": 0.25, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
+     "frequency": {"kind": "every_watering"}, "use": "maintenance", "details": ""},
+    {"application": "soil", "amount": 1, "amount_unit": "tsp", "water_volume": 1, "water_unit": "gal",
+     "frequency": {"kind": "interval", "days": 30}, "use": "monthly", "details": ""}
   ],
   "notes": "Urea-free."
 }
@@ -54,14 +54,16 @@ Each **label direction** is one dose and how often to apply it, in the units pri
 
 | Field | Type | Rules |
 |---|---|---|
+| `application` | `soil` / `hydroponic` / `foliar` | Required. How the direction is applied: watering plants in soil, a hydroponic or semi-hydro reservoir, or a leaf spray |
 | `amount` | number | Greater than 0 |
 | `amount_unit` | `ml` / `g` / `tsp` / `tbsp` | |
 | `water_volume` | number | Greater than 0 |
 | `water_unit` | `L` / `gal` | |
-| `frequency` | `{"kind": "interval", "days": N}` or `{"kind": "every_watering"}` | `days` is a whole number greater than 0, and only allowed for `interval` |
+| `frequency` | `{"kind": "interval", "days": N}`, `{"kind": "every_watering"}`, or `{"kind": "as_needed"}` | `days` is a whole number greater than 0, and only allowed for `interval`. A `foliar` direction cannot be `every_watering` |
 | `use` | text or `null` | What the direction is for, e.g. "maintenance" |
+| `details` | text | Optional, defaults to `""`. The rest of the instruction as printed, e.g. "for the first 2 or 3 waterings" |
 
-Rule across directions: when there are **several** directions, each needs a `use`, and no two may share one (ignoring case), so the user can tell them apart.
+Rule across directions: when **one application** has several directions, each needs a `use`, and no two may share one (ignoring case), so the user can tell them apart. A soil and a hydroponic direction are told apart by their application and need no `use`.
 
 All objects reject unknown fields, so a typo such as `"dilutoin"` is an error rather than silently ignored.
 
@@ -77,7 +79,13 @@ All objects reject unknown fields, so a typo such as `"dilutoin"` is an error ra
 
 **Dose and frequency stay together.** Labels often give several pairs ("1/4 tsp per gallon every watering, or 1 tsp per gallon monthly"); separate fields would lose which dose goes with which frequency.
 
-**Frequency is a discriminated union.** `kind` decides which shape applies, like a sealed interface with two records in Java. "Every watering" is not a number of days, so it is its own kind instead of `days: null`.
+**Frequency is a discriminated union.** `kind` decides which shape applies, like a sealed interface with three records in Java. "Every watering" and "as needed" are not a number of days, so each is its own kind instead of `days: null`. `as_needed` exists because some directions print no schedule (a leaf spray for deficient plants); without it the user would have to invent one.
+
+**Each direction says how it is applied.** A care plan will offer only the directions that fit its group's growing medium (soil directions for a soil mix, hydroponic ones for semi-hydro or water). Free text in `use` cannot be matched reliably, so `application` is a fixed list. Foliar sprays can go on any group.
+
+**Flat list, grouped in the UI.** The API keeps one list of directions, each with its `application`, rather than nesting them under `soil` / `hydroponic` / `foliar`. It matches the table (one row per direction), keeps the label's order, and correcting a wrong application is one field instead of moving the direction between lists. Grouping for display is the UI's job.
+
+**`details` is free text.** Labels print conditions no field can hold ("for the first 2 or 3 waterings", "spray with fresh water the next day"). They are for the user to read; nothing computes with them, so a structured field (e.g. a maximum number of applications) waits until a care plan needs one.
 
 **Units are stored as printed.** Entering what the label says is less error-prone; converting (tsp per gallon to ml per litre) belongs in code when doses are calculated.
 
@@ -103,11 +111,13 @@ CHECK constraints repeat the single-row schema rules, so writers other than the 
 |---|---|
 | `product_id` | Foreign key, `ON DELETE CASCADE`: a product takes its directions with it |
 | `position` | The order on the label; a table has no order of its own |
+| `application` | `soil`, `hydroponic`, or `foliar`; `foliar` cannot be `every_watering` |
 | `amount`, `amount_unit`, `water_volume`, `water_unit` | |
-| `frequency_kind`, `frequency_days` | The union in table form: days only for `interval`, and then greater than 0 (guarded with `IS NOT NULL`, since a NULL result passes a CHECK) |
-| `use` | Not blank when set; unique per product ignoring case (`lower(use)`); several NULLs are allowed |
+| `frequency_kind`, `frequency_days` | The union in table form: days only for `interval`, and then greater than 0 (guarded with `IS NOT NULL`, since a NULL result passes a CHECK); none for `every_watering` and `as_needed` |
+| `use` | Not blank when set; unique per product and application, ignoring case (`product_id, application, lower(use)`); several NULLs are allowed |
+| `details` | Not NULL, defaults to `""` |
 
-"Several directions each need a `use`" spans rows, which a CHECK cannot see, so only Pydantic enforces it.
+"Several directions for one application each need a `use`" spans rows, which a CHECK cannot see, so only Pydantic enforces it.
 
 ## 4. Endpoints
 
@@ -140,6 +150,14 @@ photo ─► size and format check ─► read_label (Claude) ─► LabelExtrac
 
 **`LabelExtraction`** is what the model returns (structured output). It is looser than `ProductCreate` on purpose: a field the label does not show, or that cannot be read, is `null` rather than guessed. Each direction keeps its `source_text` (the instruction as printed), and the model lists `uncertain_fields` it read but is not sure of.
 
+**What the prompt reads** (version `label-v3`, in `reader.py`). Directions for indoor plants: soil, hydroponic, and foliar. Outdoor and equipment (siphon mixer, injector) directions go to `skipped_directions` with a reason. "Do not infer" has four stated exceptions, each visible to the user:
+- **Ranges:** the lower dose and the longer interval, listed in `lower_end_fields` (underfeeding is safer).
+- **Context:** a line that leaves out the water volume or frequency takes it from the line just before it.
+- **Application:** a heading ("Hydroponics:") applies to the lines under it; a houseplant heading means soil; with no heading, soil, listed in `uncertain_fields`.
+- **Frequency:** when none is printed, a hydroponic dose is `every_watering` (it is the strength of the nutrient solution) and a leaf spray is `as_needed`; anything else stays null.
+
+`use` is left null when a direction is the only one for its application. `details` is the rest of the instruction word for word, without the dose, the frequency, or what it is for.
+
 **The draft.** `draft_from_extraction` leaves empty fields out and lets `ProductCreate` validate. If everything passes, `product` is the ready draft; otherwise `product` is `null` and `problems` lists each missing or invalid field with its location (e.g. `npk.basis`, `label_directions.0.amount_unit`). No default is filled in and no value is rounded, so nothing is invented on the model's behalf.
 
 **The call record.** Each response includes the model requested and the model that served it (a server-side fallback can re-run a declined request on another model), the prompt version, input and output tokens, latency, and cost at list price. Every call also logs one line with these, without the image.
@@ -163,7 +181,6 @@ Every rule was also checked by a targeted mutation: break the code, confirm the 
 
 ## 7. Open questions and work in progress
 
-- **How a direction is applied.** Directions do not yet say whether they are for watering a soil mix, a hydroponic reservoir, or a foliar spray. A future care plan needs to pick the direction that fits a group's growing medium, which free text in `use` cannot do reliably. Under discussion: a required `application` field (`watering` / `hydroponic` / `foliar`), with `use` becoming an optional note and its uniqueness rule removed.
-- **Prompt `label-v2`** (not committed yet): ranges on the label are filled with the lower dose and the longer interval (underfeeding is safer) and listed in `lower_end_fields`; a direction that leaves out the water volume or frequency takes it from the instruction just before it; directions that are not read (outdoor, equipment) are listed in `skipped_directions` with a reason, so the UI can show what was left out.
-- **Eval set**: real label photos with owner-checked answers, measuring per-field accuracy, cost, and latency by prompt version and model.
-- **Deferred**: NPK soft warnings, w/w vs. w/v basis for liquids (needed for dose math), optimistic locking for concurrent edits, per-field error locations for list-wide rules. See `docs/ideas.md`.
+- **Eval set**: real label photos with owner-checked answers, measuring per-field accuracy, cost, and latency by prompt version and model. The first case is SUPERthrive Grow (hydroponic, soil, foliar, and skipped directions on one label). Its foliar wording is also a prompt example for `details`, so other labels are needed to measure that field fairly.
+- **Which directions fit semi-hydro** (likely the hydroponic ones) is decided with care plans, not here.
+- **Deferred**: NPK soft warnings, w/w vs. w/v basis for liquids (needed for dose math), secondary nutrients and micronutrients as fields, keeping the upper end of a range, optimistic locking for concurrent edits, per-field error locations for list-wide rules. See `docs/ideas.md`.

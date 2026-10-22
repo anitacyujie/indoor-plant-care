@@ -19,7 +19,7 @@ It deliberately does not ask you to register every plant. People with dozens or 
 ## Data model
 
 **Done**
-- **Product:** brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), and one or more label directions (dose per volume of water, how often, and a name when there are several). Label data, not personal data.
+- **Product:** brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), and one or more label directions (how it is applied: soil, hydroponic, or foliar; dose per volume of water; how often: every N days, every watering, or as needed; a name when one application has several; and any other conditions as printed). Label data, not personal data.
 - **Growing medium:** a method (soil, semi-hydro, or water culture) and its components with parts (a fixed list such as bark, perlite, LECA, pon, plus `other` with a name). Shared by any number of groups. Components have no order of their own; they are listed with the most parts first.
 - **Taxa reference list** (`backend/data/taxa.json`): 72 genera in 31 families, each genus with its family, aliases, English and Chinese common names, and the sources that put it on the list.
 
@@ -69,6 +69,7 @@ python -m pytest -v         # run the test suite
 
 ### Data
 - **NPK as printed.** Values are `Decimal`, not float: with floats, a valid label like 0.2-83.9-15.9 adds up to slightly more than 100. Their total is not checked, because P and K are usually oxide equivalents (P2O5, K2O) and do not add up to a share of the product.
+- **Directions say how they are applied.** Each label direction is `soil`, `hydroponic`, or `foliar`, so a care plan can offer only the ones that fit a group's growing medium; free-text names cannot be matched reliably. The API keeps one flat list (matching the table, and fixing a wrong application is one field), and the UI groups it.
 - **Labeling differs by country.** The US and Canada print P and K as oxides; Australia prints the elements. Each product records which, with no default, since a wrong guess would silently mislabel the data.
 - **Sourced reference data.** Every genus in the taxa list cites why it is there (university extension houseplant lists, trend sources), and its family was checked against GBIF. Renamed genera keep their familiar name, with the new name as an alias (Sansevieria, alias Dracaena).
 - **Reference data in git, user data in the database.** The taxa list changes only through reviewed commits and is validated at startup; a bad edit stops the app from starting.

@@ -28,7 +28,8 @@ This is a portfolio project. The owner will put it on her resume and explain it 
 
 ## Data model
 
-- **Product**: brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), label directions (dose per volume of water, frequency, and a `use` name when there are several), notes. Shared across users.
+- **Product**: brand, name, type (liquid fertilizer, soluble powder, additive), NPK with its basis (oxide or elemental), label directions (application `soil` / `hydroponic` / `foliar`, dose per volume of water, frequency, a `use` name when one application has several, and `details`: the rest of the instruction as printed), notes. Shared across users.
+  - `application` lets a care plan offer only the directions that fit a group's growing medium. The API keeps directions in one flat list; the UI groups them by application.
 - **Group**: name (unique ignoring case; the UI pre-fills it from the chosen taxa and variegation, and the user may edit it), one or more taxa (genus or family, from the reference list or `other`), variegation (`none` / `variegated` / `mixed`), an optional growing medium, notes (e.g. a moss pole). No list of individual plants.
   - Why not one group per genus or family: care dimensions group differently. Aroids (Monstera, Philodendron, Anthurium) share a growing medium, but Philodendron and Anthurium want more humidity than Monstera and pothos.
 - **GrowingMedium**: name (unique), method (`soil` / `semi_hydro` / `hydro`), components with parts (a fixed list of ids plus `other` with a name), notes. Defined once and shared by any number of groups, the way plans share products.
@@ -78,7 +79,8 @@ The owner is moving toward AI engineering roles, so AI features come early, each
 1. **AI 1: label photo to Product draft.** Claude reads a fertilizer label photo and drafts a Product (structured output, validated by the Pydantic schema, confirmed by the user before saving). With an evaluation set of real label photos and owner-checked answers, measuring per-field accuracy. Depends only on Product, which is done.
    - The model transcribes what the label shows into a looser `LabelExtraction` (fields may be empty: not printed or unreadable; never guessed), and the server validates it against `ProductCreate` and reports what the user must fill in. The model never writes to the database.
    - Unit tests mock the Claude client (no network, no cost); the eval calls the real model, runs by hand, and reports per-field accuracy, cost, and latency.
-   - Only indoor watering directions are read. Outdoor, equipment (siphon mixer, injector), and foliar directions go to `skipped_directions` with a reason, and the UI lists them and says these are not supported yet.
+   - Indoor directions are read: soil, hydroponic, and foliar. Outdoor and equipment (siphon mixer, injector) directions go to `skipped_directions` with a reason, and the UI lists them and says these are not supported yet.
+   - When a label prints no frequency, a hydroponic dose is `every_watering` (the strength of the solution) and a leaf spray is `as_needed`; anything else stays empty. A direction's application follows its heading; with no heading it is `soil`, listed in `uncertain_fields`.
    - A range on the label ("1/4 to 1/2 tsp", "once or twice a month") is filled with the lower dose and the longer interval, since underfeeding is safer, and listed in `lower_end_fields`; the UI says so and invites the user to change it.
    - Record cost, latency, and tokens for every call; version the prompt and record it with each eval run; analyze failed cases (glare, handwriting, non-English labels); compare models (e.g. Opus vs. Haiku) on accuracy and cost.
 2. **Groups, pots, and the care log.** Groups own how plants are cared for (plans, growing medium); lightweight pots inside a group own when (last watered, last fertilized). See "Pots" under Data model.
@@ -97,7 +99,7 @@ The owner is moving toward AI engineering roles, so AI features come early, each
 - Backend foundation: FastAPI with `/health`; SQLAlchemy and Alembic; `get_session` request dependency; pytest with shared fixtures (`product` data, `session` on an in-memory database, `client` with `get_session` overridden).
 - The previous direction (per-species care guides, per-plant tables) was removed and the migration chain reset, since nothing was ever deployed.
 - **Product: done.**
-  - Schema `ProductCreate` / `ProductRead`: NPK as `Decimal` (0-100, at most 2 decimal places, JSON numbers) with a required `basis`; the total is not checked, since P and K may be oxide equivalents. Frequency is `interval` (days) or `every_watering`. Several label directions each need a distinct `use` (case-insensitive).
+  - Schema `ProductCreate` / `ProductRead`: NPK as `Decimal` (0-100, at most 2 decimal places, JSON numbers) with a required `basis`; the total is not checked, since P and K may be oxide equivalents. Frequency is `interval` (days), `every_watering`, or `as_needed`; a `foliar` direction cannot be `every_watering`. Several directions for one application each need a distinct `use` (case-insensitive).
   - Tables `products` (NPK in four columns, unique brand + name ignoring case) and `product_label_directions` (ordered by `position`, deleted with their product), with CHECK constraints mirroring the schema.
   - API: `POST /products` (201, 409 on duplicate brand + name), `GET /products` (sorted by brand, then name, ignoring case), `GET /products/{id}`, `PUT /products/{id}` (replaces fields and all label directions), `DELETE /products/{id}` (204). Conversion between the nested API shape and the flat tables is in `app/products/router.py`.
   - NPK soft warnings are deferred until the core works; thresholds and sources are in `docs/ideas.md`.
@@ -106,4 +108,5 @@ The owner is moving toward AI engineering roles, so AI features come early, each
   - Deleting a medium is unrestricted for now; once groups refer to media, a medium in use must be refused (409).
 - Group design agreed (see Data model).
 - Taxa list done: 72 genera in 31 families, each with a source; families checked with GBIF. Ctenanthe was left out until a source is found.
-- Next: AI 1 (label photo to Product draft, with an eval set), then groups, pots, and the care log.
+- AI 1 in progress: `POST /products/draft` works with prompt `label-v3`. The first eval case is a SUPERthrive Grow label (hydroponic, soil, foliar, and skipped directions on one label).
+- Next: the AI 1 eval set, then groups, pots, and the care log. Which label directions fit semi-hydro (likely the hydroponic ones) is decided with care plans.
