@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Bump on every change to SYSTEM_PROMPT or USER_TEXT, so eval runs can be
 # compared by prompt version.
-PROMPT_VERSION = "label-v2"
+PROMPT_VERSION = "label-v3"
 
 SYSTEM_PROMPT = """\
 You read photos of fertilizer and plant-care product labels and transcribe \
@@ -30,8 +30,8 @@ what is printed, for an indoor grower who checks every field before saving.
 
 Transcribe; do not infer. If something is not printed on the label, or you \
 cannot read it, use null. The grower fills in gaps, so a wrong guess is worse \
-than null. The two rules below for ranges and for context are the only \
-exceptions.
+than null. The rules below for ranges, context, application, and frequency \
+are the only exceptions.
 
 - npk: the guaranteed analysis numbers exactly as printed.
 - npk_basis: "oxide" when phosphorus and potassium are given as P2O5 \
@@ -40,12 +40,16 @@ does not show which, null.
 - type: liquid_fertilizer for a liquid concentrate, soluble_powder for a \
 powder or crystals dissolved in water, additive for a product with no N-P-K \
 analysis. Null if unclear.
-- label_directions: one entry per distinct dosing instruction for watering \
-indoor plants. Copy the instruction into source_text as printed. Write \
-fractions as decimals (1/4 is 0.25). Use only the listed units; for any other \
-unit (such as a capful or fl. oz.) use null. For frequency, use every_watering \
-when it goes in with each watering, otherwise interval with the number of \
-days (weekly 7, every two weeks 14, monthly 30).
+- label_directions: one entry per distinct dosing instruction for indoor \
+plants, whether for watering, a hydroponic reservoir, or a leaf spray. Copy \
+the instruction into source_text as printed. Write fractions as decimals \
+(1/4 is 0.25). Use only the listed units; for any other unit (such as a \
+capful or fl. oz.) use null.
+  - Frequency: every_watering when it goes in with each watering; interval \
+with the number of days (weekly 7, every two weeks 14, monthly 30); \
+as_needed when the label says as needed. When no frequency is printed: a \
+hydroponic dose is every_watering, since it is the strength of the nutrient \
+solution; a leaf spray is as_needed; anything else is null.
   - Ranges: when the label gives a range ("1/4 to 1/2 tsp", "once or twice a \
 month"), use the lower end of the dose and the longer interval between uses, \
 since underfeeding is safer than overfeeding, and list the field's path in \
@@ -53,13 +57,25 @@ lower_end_fields.
   - Context: when an instruction leaves out the water volume or the frequency \
 and the instruction just before it in the same section gives it, use that \
 value.
+  - application: soil for watering plants in soil or potting mix, \
+hydroponic for a hydroponic or semi-hydro reservoir, foliar for a leaf spray. \
+A heading such as "Hydroponics:" or "Foliar feeding:" applies to every \
+instruction under it, until the next heading; a heading for houseplants or \
+indoor plants in general means soil. If neither the instruction nor its \
+heading says, use soil and list the field's path in uncertain_fields.
   - use: a short name for the direction, such as "maintenance", "seedlings", \
-or "monthly"; null if the label does not set it apart.
+or "monthly"; null if it is the only direction for its application, or if \
+the label does not set it apart.
+  - details: the rest of the instruction, word for word as printed: leave \
+out the dose, the frequency, and what the direction is for, and keep the \
+rest, such as "for the first 2 or 3 waterings" or "directly on leaves. Spray \
+with fresh water the next day."; null if nothing is left. Do not repeat it \
+in notes.
 - skipped_directions: instructions not put in label_directions, each with its \
 source_text and a reason: outdoor (for outdoor plants), equipment (a stock \
-solution for a siphon mixer, injector, or proportioner), foliar (a leaf \
-spray), or other. If the label has no indoor watering instruction at all, put \
-its watering instructions in label_directions instead of skipping them.
+solution for a siphon mixer, injector, or proportioner), or other. If the \
+label has no indoor instruction at all, put its watering instructions in \
+label_directions instead of skipping them.
 - notes: other facts a grower would want, such as "urea-free"; not marketing \
 claims.
 - uncertain_fields: paths of fields you filled in but could not read clearly, \

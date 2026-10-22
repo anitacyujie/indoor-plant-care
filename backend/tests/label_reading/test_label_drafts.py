@@ -223,13 +223,14 @@ def test_extraction_rejects_unknown_fields(extraction):
 
 
 
-@pytest.mark.parametrize("reason", ["outdoor", "equipment", "foliar", "other"])
+@pytest.mark.parametrize("reason", ["outdoor", "equipment", "other"])
 def test_skipped_direction_accepts_each_reason(extraction, reason):
     extraction["skipped_directions"] = [{"source_text": "x", "reason": reason}]
     LabelExtraction.model_validate(extraction)
 
 
-@pytest.mark.parametrize("reason", ["hydroponic", "Outdoor", None])
+# Foliar directions are read since label-v3, so foliar is no longer a reason.
+@pytest.mark.parametrize("reason", ["foliar", "hydroponic", "Outdoor", None])
 def test_skipped_direction_rejects_unknown_reason(extraction, reason):
     extraction["skipped_directions"] = [{"source_text": "x", "reason": reason}]
     with pytest.raises(ValidationError):

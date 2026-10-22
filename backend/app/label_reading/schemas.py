@@ -24,8 +24,8 @@ class ExtractedNpk(StrictModel):
 class ExtractedDirection(StrictModel):
     source_text: str = Field(description="This direction exactly as printed on the label")
     application: Application | None = Field(
-        description="soil: watering plants in soil; hydroponic: a hydroponic reservoir; "
-        "foliar: a leaf spray"
+        description="soil: watering plants in soil; hydroponic: a hydroponic or semi-hydro "
+        "reservoir; foliar: a leaf spray. soil if the label does not say"
     )
     amount: float | None = Field(description="Dose amount; convert fractions like 1/4 to 0.25")
     amount_unit: Literal["ml", "g", "tsp", "tbsp"] | None = Field(
@@ -42,21 +42,21 @@ class ExtractedDirection(StrictModel):
     )
     use: str | None = Field(description='What this direction is for, e.g. "maintenance"; null if not named')
     details: str | None = Field(
-        description='Conditions printed with this direction that the other fields cannot hold, '
-        'e.g. "first 2-3 waterings only"; null if none'
+        description="The rest of the instruction word for word, without the dose, the "
+        'frequency, or what it is for, e.g. "for the first 2 or 3 waterings"; null if none'
     )
 
 
-# Only indoor watering directions are read for now; the rest are listed, with
-# why, so the user can see what was left out.
-SkipReason = Literal["outdoor", "equipment", "foliar", "other"]
+# Only indoor directions (soil, hydroponic, foliar) are read for now; the rest
+# are listed, with why, so the user can see what was left out.
+SkipReason = Literal["outdoor", "equipment", "other"]
 
 
 class SkippedDirection(StrictModel):
     source_text: str = Field(description="The skipped instruction exactly as printed")
     reason: SkipReason = Field(
         description="outdoor: for outdoor plants; equipment: a stock solution for a siphon "
-        "mixer, injector, or proportioner; foliar: a leaf spray; other: anything else"
+        "mixer, injector, or proportioner; other: anything else"
     )
 
 
